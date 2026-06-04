@@ -29,29 +29,24 @@ db.connect((err) => {
 
 // 4. Ruta POST: El reemplazo directo de tu RegistroServlet.java
 app.post('/RegistroServlet', (req, res) => {
-    // Capturamos los datos que vienen desde tu HTML
     const { Nombre, Cedula, email, telefono, password, confirmPassword } = req.body;
 
-    // Como en tu BD no hay columna password por ahora, validamos solo en JS que coincidan
     if (password && password === confirmPassword) {
         
-        // CORREGIDO: Nombre de tabla y columnas exactas a tu script de GitHub
-        const query = 'INSERT INTO REGISTRO_USUARIO (ID_USUARIO, NOMBRE, APELLIDO, EDAD, EMAIL, TELEFONO) VALUES (?, ?, ?, ?, ?, ?)';
+        // 1. Agregamos PASSWORD a las columnas y un "?" extra al final
+        const query = 'INSERT INTO REGISTRO_USUARIO (ID_USUARIO, NOMBRE, APELLIDO, EDAD, EMAIL, TELEFONO, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)';
         
-        // Enviamos los datos en el orden exacto de la consulta SQL
-        // Pasamos "N/A" en apellido y 18 en edad por defecto, tal como lo tenías antes
-        db.query(query, [Cedula, Nombre, "N/A", 18, email, telefono], (error, results) => {
+        // 2. Agregamos la variable password al final de la lista
+        db.query(query, [Cedula, Nombre, "N/A", 18, email, telefono, password], (error, results) => {
             if (error) {
                 console.error('Error al insertar en la BD:', error);
                 return res.redirect('/Registro_de_usuario.html?error=formulario');
             }
-            // Si todo sale bien, te redirige a tu Página Principal
-            console.log(`¡Usuario ${Nombre} registrado con éxito en MySQL!`);
+            console.log(`¡Usuario ${Nombre} registrado con éxito en MySQL con contraseña!`);
             res.redirect('/Pagina_Principal.html?registro=exito');
         });
 
     } else {
-        // Si las contraseñas no coinciden
         res.redirect('/Registro_de_usuario.html?error=claves_no_coinciden');
     }
 });
