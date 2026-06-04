@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>PQR - Brocash</title>
+<link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="encabezado">
+            <img src="Logos/Logo.png" class="logo">
+        </div>  
+
+    <div class="container">
+        <form class="form-card">
+            <h2>Crear solicitud PQR</h2>
+                <form id="formPQR">
+        <label>Nombre:</label><br>
+        <input type="text" id="nombre"><br><br>
+
+        <label>Correo:</label><br>
+        <input type="email" id="correo"><br><br>
+
+        <label>Tipo de solicitud:</label><br>
+        <select id="tipo">
+            <option value="">Seleccione</option>
+            <option value="Peticion">Petición</option>
+            <option value="Queja">Queja</option>
+            <option value="Reclamo">Reclamo</option>
+        </select><br><br>
+
+        <label>Mensaje:</label><br>
+        <textarea id="mensaje"></textarea><br><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <h3 id="respuesta"></h3>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
