@@ -8,10 +8,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 2. Servir tus archivos de diseño (HTML, CSS, Logos) 
-app.use(express.static(path.join(__dirname)));
-
-// 3. Conexión a Base de Datos MySQL 
+// 2. Conexión a Base de Datos MySQL 
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -27,7 +24,11 @@ db.connect((err) => {
     console.log('¡Conectado con éxito a la base de datos MySQL Brocash!');
 });
 
-// 4. Ruta POST para manejar el registro de usuarios 
+// ==========================================
+// 3. RUTAS DE LOS FORMULARIOS (Prioridad de procesamiento)
+// ==========================================
+
+// Ruta POST para el registro de usuarios // 
 app.post('/RegistroServlet', (req, res) => {
     const { Nombre, Cedula, email, telefono, password, confirmPassword } = req.body;
 
@@ -49,12 +50,11 @@ app.post('/RegistroServlet', (req, res) => {
     }
 });
 
-// 5. Ruta POST: El proceso de Login 
+// Ruta POST: El proceso de Login //
 app.post('/LoginServlet', (req, res) => {
-    // Revisamos la Cédula y la Contraseña que vienen de la Pagina_Principal.html
     const { Cedula, password } = req.body;
+    console.log(`📡 Intentando iniciar sesión para la cédula: ${Cedula}`);
 
-    // El sitema busca en la base de datos si existe un usuario con esa ID_USUARIO
     const query = 'SELECT * FROM REGISTRO_USUARIO WHERE ID_USUARIO = ?';
 
     db.query(query, [Cedula], (error, results) => {
@@ -63,31 +63,31 @@ app.post('/LoginServlet', (req, res) => {
             return res.redirect('/Pagina_Principal.html?error=servidor');
         }
 
-        // Si results.length es mayor a 0, significa que la cédula sí existe en MySQL
         if (results.length > 0) {
             const usuarioEncontrado = results[0];
             
-                        if (usuarioEncontrado.PASSWORD === password) {
+            if (usuarioEncontrado.PASSWORD === password) {
                 console.log(`¡Inicio de sesión exitoso! Bienvenido, ${usuarioEncontrado.NOMBRE}`);
-                
-                // 🚀 REDIRECCIÓN CLAVE: Lo mandamos a la página de solicitud de crédito
-                // Si tu página de créditos se llama diferente, cámbiale el nombre aquí (.html)
+                // Recuerda tener tu archivo Solicitud_Credito.html creado en tu carpeta
                 res.redirect('/Solicitud_Credito.html'); 
                 
             } else {
-                // Si la contraseña no es correcta
                 console.log('Intento de login fallido: Contraseña incorrecta.');
                 res.redirect('/Pagina_Principal.html?error=datos_incorrectos');
             }
         } else {
-            // Si no se encontró ningún usuario con esa cédula
             console.log('Intento de login fallido: El usuario no existe.');
             res.redirect('/Pagina_Principal.html?error=usuario_no_existe');
         }
     });
 });
 
+// ==========================================
+// 4. SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, etc.)
+// ==========================================
+app.use(express.static(path.join(__dirname)));
 
+// 5. ENCENDER EL MOTOR
 const PUERTO = 8080;
 app.listen(PUERTO, () => {
     console.log(`==================================================`);
