@@ -69,7 +69,7 @@ app.post('/LoginServlet', (req, res) => {
             if (usuarioEncontrado.PASSWORD === password) {
                 console.log(`¡Inicio de sesión exitoso! Bienvenido, ${usuarioEncontrado.NOMBRE}`);
                 // Recuerda tener tu archivo Solicitud_Credito.html creado en tu carpeta
-                res.redirect('/Solicitud_Credito.html'); 
+                res.redirect('/Solicitud_de_credito.html'); 
                 
             } else {
                 console.log('Intento de login fallido: Contraseña incorrecta.');
