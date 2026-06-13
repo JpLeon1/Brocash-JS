@@ -23,6 +23,10 @@ h1 {
   font-size: 32px;
   color: #55d67a;
 }
+h2 {  
+  font-size: 24px;
+  color: #55d67a;
+}
 
 /*CONTENEDOR UNIVERSAL (CENTRA TODO) */
 .container {
