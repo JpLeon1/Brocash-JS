@@ -113,6 +113,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 const PUERTO = 8080;
 app.listen(PUERTO, () => {
     console.log(`==================================================`);
-    console.log(`🚀 Servidor Brocash corriendo en http://localhost:${8080}`);
+    console.log(`🚀 Servidor Brocash corriendo en http://localhost:${PUERTO}`);
     console.log(`==================================================`);
 });
