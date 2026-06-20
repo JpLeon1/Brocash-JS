@@ -1,39 +1,23 @@
 const express = require('express');
-const mysql = require('mysql2');
 const path = require('path');
+const db = require('./config/db.js'); 
 
 const app = express();
 
-// 1. Configuración para poder leer los datos que envían tus formularios HTML
+// ==========================================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 2. Conexión a Base de Datos MySQL 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '6406',
-    database: 'Brocash'
-});
-
-db.connect((err) => {
-    if (err) {
-        console.error('Error al conectar a la base de datos MySQL:', err);
-        return;
-    }
-    console.log('¡Conectado con éxito a la base de datos MySQL Brocash!');
-});
 
 // ==========================================
-// 3. RUTAS DE LOS FORMULARIOS (Prioridad de procesamiento)
+// 3. RUTAS DE LOS FORMULARIOS
 // ==========================================
 
-// Ruta POST para el registro de usuarios // 
+// Ruta POST para el registro de usuarios 
 app.post('/RegistroServlet', (req, res) => {
     const { Nombre, Cedula, email, telefono, password, confirmPassword } = req.body;
 
     if (password && password === confirmPassword) {
-        
         const query = 'INSERT INTO REGISTRO_USUARIO (ID_USUARIO, NOMBRE, APELLIDO, EDAD, EMAIL, TELEFONO, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)';
         
         db.query(query, [Cedula, Nombre, "N/A", 18, email, telefono, password], (error, results) => {
@@ -44,13 +28,12 @@ app.post('/RegistroServlet', (req, res) => {
             console.log(`¡Usuario ${Nombre} registrado con éxito en MySQL con contraseña!`);
             res.redirect('/Pagina_Principal.html?registro=exito');
         });
-
     } else {
         res.redirect('/Registro_de_usuario.html?error=claves_no_coinciden');
     }
 });
 
-// Ruta POST: El proceso de Login //
+// Ruta POST: El proceso de Login 
 app.post('/LoginServlet', (req, res) => {
     const { Cedula, password } = req.body;
     console.log(`📡 Intentando iniciar sesión para la cédula: ${Cedula}`);
@@ -68,9 +51,7 @@ app.post('/LoginServlet', (req, res) => {
             
             if (usuarioEncontrado.PASSWORD === password) {
                 console.log(`¡Inicio de sesión exitoso! Bienvenido, ${usuarioEncontrado.NOMBRE}`);
-        
                 res.redirect('/Solicitud_de_credito.html'); 
-                
             } else {
                 console.log('Intento de login fallido: Contraseña incorrecta.');
                 res.redirect('/Pagina_Principal.html?error=datos_incorrectos');
@@ -82,26 +63,20 @@ app.post('/LoginServlet', (req, res) => {
     });
 });
 
-// ==========================================
-// 4. RUTA POST Procesar la Solicitud de Crédito
-// ==========================================
+// Ruta POST Procesar la Solicitud de Crédito con datos completos y asignación de analista
 app.post('/Solicitud_de_creditoServlet', (req, res) => {
-    // 1. Extraemos TODOS los campos que viajan desde el HTML
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos, fechaSolicitud } = req.body;
 
-    // 2. Generamos los valores obligatorios automatizados del negocio
-    const idCredito = Math.floor(100000 + Math.random() * 900000); // ID Aleatorio
-    const idAnalista = 1020856325; // ID de analista por defecto en tu BD
+    const idCredito = Math.floor(100000 + Math.random() * 900000); 
+    const idAnalista = 1020856325; 
     const estado = 'Pendiente';
 
     console.log(`📡 Guardando solicitud completa N° ${idCredito} para ${Nombre}`);
 
-    // 3. Sentencia SQL AMPLIADA con las 10 columnas en total
     const query = `INSERT INTO CREDITO 
         (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    // 4. Pasamos los 10 valores en el orden exacto de las columnas
     db.query(query, [idCredito, Cedula, idAnalista, ingresos, estado, Nombre, email, ocupacion, telefono, fechaSolicitud], (error, results) => {
         if (error) {
             console.error('Error al insertar el crédito completo en la BD:', error);
@@ -116,7 +91,6 @@ app.post('/Solicitud_de_creditoServlet', (req, res) => {
 
         console.log(`¡Crédito N° ${idCredito} con datos completos almacenado con éxito!`);
         
-        // Mensaje de confirmación
         res.send(`
             <div style="text-align: center; font-family: Arial; padding-top: 50px;">
                 <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
@@ -131,9 +105,9 @@ app.post('/Solicitud_de_creditoServlet', (req, res) => {
 });
 
 // ==========================================
-// 5. SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, etc.)
+// 5. SERVIR ARCHIVOS ESTÁTICOS DESDE LA CARPETA PUBLIC 
 // ==========================================
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 6. ENCENDER EL MOTOR
 const PUERTO = 8080;
