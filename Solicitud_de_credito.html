@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Brocash - Solicitud</title>
@@ -11,32 +11,43 @@
 <header class="header">
     <div class="encabezado">
         <img src="Logos/Logo.png" class="logo"> 
-        <h1>Solicitud de Crédito</h1>
+        <h2>Solicitud de Crédito</h2>
     </div>
     <h4>Complete los siguientes campos a continuación:</h4>
 </header>
 
 <div class="container">
-    <form class="form-card">
+    <form class="form-card" action="/Solicitud_de_creditoServlet" method="POST">
 
-        <label>Nombre y apellidos</label>
-        <input type="text" placeholder="Nombre y apellidos" required>
+        <label>Nombre y apellidos</label> 
+        <input type="text" name="Nombre" placeholder="Nombre y apellidos" required>
+        
         <label>Cédula</label>
-        <input type="text" placeholder="Cédula" required>
+        <input type="number" name="Cedula" placeholder="Cédula" required>
+        
         <label>Correo electrónico</label>
-        <input type="email" placeholder="Email" required>
+        <input type="email" name="email" placeholder="Email" required>
+        
         <label>Ocupación</label>
-        <input type="text" placeholder="Ocupación" required>
+        <input type="text" name="ocupacion" placeholder="Ocupación" required>
+        
         <label>Teléfono</label>
-        <input type="tel" placeholder="Teléfono" required>
+        <input type="tel" name="telefono" placeholder="Teléfono" required>
+        
+        <label>Ingresos Mensuales ($)</label>
+        <input type="number" name="ingresos" placeholder="Ej: 2000000" required>
+
         <label>Adjuntar desprendible de pago</label>
-        <input type="file">
+        <input type="file" name="desprendible">
+        
         <label>Adjuntar documento de identidad</label>
-        <input type="file">
+        <input type="file" name="documento">
+        
         <label>Fecha de solicitud</label>
-        <input type="date">
+        <input type="date" name="fechaSolicitud">
+        
         <label class="check">
-            <input type="checkbox"> Acepto los términos y condiciones
+            <input type="checkbox" required> Acepto los términos y condiciones
         </label>
 
         <button type="submit">Enviar solicitud</button>

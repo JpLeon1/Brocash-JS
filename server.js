@@ -68,7 +68,7 @@ app.post('/LoginServlet', (req, res) => {
             
             if (usuarioEncontrado.PASSWORD === password) {
                 console.log(`¡Inicio de sesión exitoso! Bienvenido, ${usuarioEncontrado.NOMBRE}`);
-              
+        
                 res.redirect('/Solicitud_de_credito.html'); 
                 
             } else {
@@ -83,11 +83,57 @@ app.post('/LoginServlet', (req, res) => {
 });
 
 // ==========================================
-// 4. SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, etc.)
+// 4. RUTA POST Procesar la Solicitud de Crédito
+// ==========================================
+app.post('/Solicitud_de_creditoServlet', (req, res) => {
+    const { Nombre, Cedula, email, ocupacion, telefono, ingresos, fechaSolicitud } = req.body;
+
+    const idCredito = Math.floor(100000 + Math.random() * 900000); // ID Aleatorio
+    const idAnalista = 1020856325; // ID de analista por defecto segun la base de datos
+    const estado = 'Pendiente';
+
+    console.log(`📡 Recibiendo solicitud de crédito N° ${idCredito} de ${Nombre} (CC: ${Cedula})`);
+
+    //Sentencia SQL estructurada para insertar en la base de datos de CREDITO
+    
+    const query = 'INSERT INTO CREDITO (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, ESTADO) VALUES (?, ?, ?, ?, ?)';
+
+    db.query(query, [idCredito, Cedula, idAnalista, ingresos, estado], (error, results) => {
+
+        //Mensaje de error y respuesta al cliente si no esta registrado en la base de datos
+        if (error) {
+            console.error('Error al insertar el crédito en la BD:', error);
+            return res.send(`
+                <div style="text-align: center; font-family: Arial; padding-top: 50px;">
+                    <h2 style="color: #e74c3c;">Error al procesar la solicitud</h2>
+                    <p>Verifica que tu cédula esté registrada previamente en el sistema.</p>
+                    <a href="javascript:history.back()">Regresar al formulario</a>
+                </div>
+            `);
+        }
+
+        console.log(`¡Crédito N° ${idCredito} almacenado con éxito en MySQL!`);
+        
+        // Mensaje de confirmación en el navegador
+        res.send(`
+            <div style="text-align: center; font-family: Arial; padding-top: 50px;">
+                <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
+                <p>Estimado/a <strong>${Nombre}</strong>, tu solicitud ha sido enviada al analista asignado.</p>
+                <p>Número de radicado: <strong>${idCredito}</strong></p>
+                <p>Estado actual: <span style="background: #f1c40f; padding: 2px 6px; border-radius: 3px;"><strong>${estado}</strong></span></p>
+                <br>
+                <a href="/Pagina_Principal.html" style="text-decoration: none; background: #3498db; color: white; padding: 10px 20px; border-radius: 5px;">Finalizar y Salir</a>
+            </div>
+        `);
+    });
+});
+
+// ==========================================
+// 5. SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS, etc.)
 // ==========================================
 app.use(express.static(path.join(__dirname)));
 
-// 5. ENCENDER EL MOTOR
+// 6. ENCENDER EL MOTOR
 const PUERTO = 8080;
 app.listen(PUERTO, () => {
     console.log(`==================================================`);
