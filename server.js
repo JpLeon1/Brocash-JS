@@ -86,35 +86,37 @@ app.post('/LoginServlet', (req, res) => {
 // 4. RUTA POST Procesar la Solicitud de Crédito
 // ==========================================
 app.post('/Solicitud_de_creditoServlet', (req, res) => {
+    // 1. Extraemos TODOS los campos que viajan desde el HTML
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos, fechaSolicitud } = req.body;
 
+    // 2. Generamos los valores obligatorios automatizados del negocio
     const idCredito = Math.floor(100000 + Math.random() * 900000); // ID Aleatorio
-    const idAnalista = 1020856325; // ID de analista por defecto segun la base de datos
+    const idAnalista = 1020856325; // ID de analista por defecto en tu BD
     const estado = 'Pendiente';
 
-    console.log(`📡 Recibiendo solicitud de crédito N° ${idCredito} de ${Nombre} (CC: ${Cedula})`);
+    console.log(`📡 Guardando solicitud completa N° ${idCredito} para ${Nombre}`);
 
-    //Sentencia SQL estructurada para insertar en la base de datos de CREDITO
-    
-    const query = 'INSERT INTO CREDITO (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, ESTADO) VALUES (?, ?, ?, ?, ?)';
+    // 3. Sentencia SQL AMPLIADA con las 10 columnas en total
+    const query = `INSERT INTO CREDITO 
+        (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    db.query(query, [idCredito, Cedula, idAnalista, ingresos, estado], (error, results) => {
-
-        //Mensaje de error y respuesta al cliente si no esta registrado en la base de datos
+    // 4. Pasamos los 10 valores en el orden exacto de las columnas
+    db.query(query, [idCredito, Cedula, idAnalista, ingresos, estado, Nombre, email, ocupacion, telefono, fechaSolicitud], (error, results) => {
         if (error) {
-            console.error('Error al insertar el crédito en la BD:', error);
+            console.error('Error al insertar el crédito completo en la BD:', error);
             return res.send(`
                 <div style="text-align: center; font-family: Arial; padding-top: 50px;">
                     <h2 style="color: #e74c3c;">Error al procesar la solicitud</h2>
-                    <p>Verifica que tu cédula esté registrada previamente en el sistema.</p>
+                    <p>Hubo un problema al guardar los datos ampliados. Verifica la estructura de la BD.</p>
                     <a href="javascript:history.back()">Regresar al formulario</a>
                 </div>
             `);
         }
 
-        console.log(`¡Crédito N° ${idCredito} almacenado con éxito en MySQL!`);
+        console.log(`¡Crédito N° ${idCredito} con datos completos almacenado con éxito!`);
         
-        // Mensaje de confirmación en el navegador
+        // Mensaje de confirmación
         res.send(`
             <div style="text-align: center; font-family: Arial; padding-top: 50px;">
                 <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
