@@ -1,22 +1,24 @@
 // controllers/creditoController.js
-const Credito = require('../models/creditoModel'); // se importa el modelo 
+const Credito = require('../models/creditoModel'); // Importamos el modelo
 
 exports.procesarSolicitud = (req, res) => {
-    // 1. Lo basamos en el formulario HTML
+    // 1. Extraemos la informacion del formulario HTML
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos, fechaSolicitud } = req.body;
 
-    // 2. Se le da un valor aleatorio a los campos que no vienen del formulario, como el ID del crédito y el analista asignado
+    // 2. Generamos los valores automáticos del negocio
     const idCredito = Math.floor(100000 + Math.random() * 900000); 
-    const idAnalista = 1020856325; // ID por defecto del analista asignado 
+    const idAnalista = 1020856325; // ID por defecto de un analista asignado
+    const estado = 'Pendiente'; //  Estado inicial de la solicitud
+
     console.log(`📡 Controlador: Procesando solicitud N° ${idCredito} para ${Nombre}`);
 
-    // 3. Juntamos todos los datos para enviárselos al Modelo
+    // 3. Creamos un objeto con los datos completos para pasarlo al modelo
     const nuevosDatos = {
         idCredito,
         Cedula,
         idAnalista,
         ingresos,
-        estado,
+        estado, 
         Nombre,
         email,
         ocupacion,
@@ -39,7 +41,7 @@ exports.procesarSolicitud = (req, res) => {
 
         console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
         
-        // 5. Respuesta visual de la pagina para el usuario
+        // 5. Respuesta visual de éxito para el usuario
         res.send(`
             <div style="text-align: center; font-family: Arial; padding-top: 50px;">
                 <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
