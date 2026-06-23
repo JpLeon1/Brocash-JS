@@ -30,25 +30,28 @@ exports.login = (req, res) => {
     });
 };
 
-// 📝 LÓGICA PARA EL REGISTRO DE USUARIO
+// 📝 LÓGICA DE REGISTRO USUARIO    
 exports.registrar = (req, res) => {
     const { Nombre, Cedula, email, telefono, password, confirmPassword } = req.body;
-    console.log(`📡 Controlador Auth: Procesando registro para ${Nombre}`);
+    
+    console.log(`📡 Intentando registrar a: ${Nombre} (CC: ${Cedula})`);
+    console.log(`🔑 Contraseña: ${password} | Confirmación: ${confirmPassword}`);
 
-    // Validar  que las contraseñas coincidan
+    // 1. Validamos que las contraseñas coincidan
     if (password && password === confirmPassword) {
         const nuevoUsuario = { Nombre, Cedula, email, telefono, password };
 
         Usuario.crear(nuevoUsuario, (error, results) => {
             if (error) {
-                console.error('❌ Error en el modelo al registrar usuario:', error);
+                console.error('❌ Error real en el modelo de MySQL al registrar:', error);
+                // Si falla la inserción en la BD, los regresa al formulario
                 return res.redirect('/Registro_de_usuario.html?error=formulario');
             }
-            console.log(`✅ Usuario ${Nombre} registrado con éxito en la BD.`);
+            console.log(`✅ ¡Usuario ${Nombre} guardado con éxito en MySQL! Redirigiendo a la Principal...`);
             return res.redirect('/Pagina_Principal.html?registro=exito');
         });
     } else {
-        console.log('❌ Registro fallido: Las contraseñas no coinciden.');
+        console.log('❌ Error: Las contraseñas digitadas NO coinciden en el formulario.');
         return res.redirect('/Registro_de_usuario.html?error=claves_no_coinciden');
     }
 };
