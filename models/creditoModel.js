@@ -18,7 +18,7 @@ const Credito = {
             datosCredito.email,
             datosCredito.ocupacion,
             datosCredito.telefono,
-            datosCredito.fechaSolicitud
+            datosCredito.fechaSolicitud     
         ], callback);
     }
 };
