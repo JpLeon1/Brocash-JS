@@ -114,3 +114,64 @@ input[type="submit"]:hover {
     padding: 20px;
   }
 }
+
+
+/*====================================================
+  PANEL DE ANALISTA - PROYECTO BROCASH
+  ==================================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+}
+.container-analista {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.container-analista h1 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+.tabla-creditos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.tabla-creditos th, .tabla-creditos td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.tabla-creditos th {
+    background-color: #3498db;
+    color: white;
+}
+.tabla-creditos tr:hover {
+    background-color: #f1f1f1;
+}
+.btn-crud {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 5px;
+}
+.btn-aprobar { background-color: #2ecc71; color: white; }
+.btn-rechazar { background-color: #e67e22; color: white; }
+.btn-eliminar { background-color: #e74c3c; color: white; }
+
+.status-crud {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.status-pendiente { background-color: #f1c40f; color: #fff; }
+.status-aprobado { background-color: #2ecc71; color: #fff; }
+.status-rechazado { background-color: #e74c3c; color: #fff; }
