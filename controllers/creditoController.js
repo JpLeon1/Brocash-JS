@@ -15,7 +15,7 @@ exports.procesarSolicitud = (req, res) => {
     // 3. Creamos un objeto con los datos completos para pasarlo al modelo
     const nuevosDatos = {
         idCredito,
-        Cedula,
+        Cedula: Number(Cedula),
         idAnalista,
         ingresos,
         estado, 
