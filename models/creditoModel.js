@@ -31,7 +31,15 @@ const Credito = {
     eliminar: (idCredito, callback) => {
         const query = 'DELETE FROM CREDITO WHERE ID_CREDITO = ?';
         db.query(query, [idCredito], callback);
-    }
+    },
+    
+    // 5. Validar si el usuario ya tiene un crédito en estudio 
+verificarPendiente: (cedulaUsuario, callback) => {
+    // Realizamos la busqueda en la Base de Datos para verificar  si existe un registro con esa cédula y cual es su  estado.
+    const query = "SELECT * FROM CREDITO WHERE ID_USUARIO = ? AND UPPER(ESTADO) = 'PENDIENTE'";
+    db.query(query, [cedulaUsuario], callback);
+}
+
 };
 
 module.exports = Credito;
