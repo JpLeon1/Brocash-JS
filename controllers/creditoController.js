@@ -1,11 +1,15 @@
+// controllers/creditoController.js
+const Credito = require('../models/creditoModel'); 
+
+// 1. Método CREATE: Procesar la Solicitud de Crédito
 exports.procesarSolicitud = (req, res) => {
-    // 1. Extraemos la informacion del formulario HTML (AÑADIDO monto_solicitado)
+    // 1. Extraemos la informacion del formulario HTML
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos, monto_solicitado, fechaSolicitud } = req.body;
 
     console.log(`📡 Controlador: Iniciando validación para cédula ${Cedula}`);
 
     // =========================================================================
-    // Metodo para Verificar si ya existe una solicitud 'Pendiente y que esta no se "Duplique"
+    // Metodo para Verificar si ya existe una solicitud 'Pendiente' y que esta no se "Duplique"
     // =========================================================================
     Credito.verificarPendiente(Number(Cedula), (errorVerificacion, filas) => {
         if (errorVerificacion) {
@@ -23,6 +27,7 @@ exports.procesarSolicitud = (req, res) => {
                 </script>
             `);
         }
+        
         // 2. Generamos los valores automáticos del negocio
         const idCredito = Math.floor(100000 + Math.random() * 900000); 
         const idAnalista = 1020856325; // ID por defecto de un analista asignado
@@ -73,4 +78,93 @@ exports.procesarSolicitud = (req, res) => {
             `);
         });
     }); 
+};
+
+// 2. Metodo READ: Mostrar todos los créditos en la tabla del Analista
+exports.listarCreditos = (req, res) => {
+    Credito.obtenerTodos((error, rows) => {
+        if (error) {
+            console.error('❌ Error al leer los créditos:', error);
+            return res.status(500).json({ mensaje: 'Error al obtener créditos' });
+        }
+        res.json(rows); 
+    });
+};
+
+// 3. Metodo UPDATE: Modificar el estado de un crédito y desembolsar si es aprobado
+exports.modificarEstado = (req, res) => {
+    const { idCredito, nuevoEstado } = req.body;
+    
+    // 1. Primero se actualiza el estado del crédito en la base de datos
+    Credito.actualizarEstado(idCredito, nuevoEstado, (error, result) => {
+        if (error) {
+            console.error('❌ Error al actualizar crédito:', error);
+            return res.status(500).send('Error interno');
+        }
+        
+        console.log(`✅ Crédito N° ${idCredito} actualizado a: ${nuevoEstado}`);
+
+        // 2. Se realiza el desembolso solo si el nuevo estado es 'Aprobado'
+        if (nuevoEstado.toLowerCase() === 'aprobado') {
+            const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO FROM CREDITO WHERE ID_CREDITO = ?";
+            
+            require('../config/db').query(queryBuscarCredito, [idCredito], (errBusqueda, filas) => {
+                if (errBusqueda || filas.length === 0) {
+                    console.error('❌ Error al buscar datos del crédito para desembolso:', errBusqueda);
+                    return res.redirect('/Vista_Analista.html?update=exito&error=desembolso');
+                }
+
+                const { ID_USUARIO, MONTO_SOLICITADO } = filas[0];
+
+                // Llamamos al método del modelo para realizar el desembolso
+                Credito.desembolsarDinero(ID_USUARIO, MONTO_SOLICITADO, (errDesembolso, resDesembolso) => {
+                    if (errDesembolso) {
+                        console.error(`❌ Error al depositar dinero al usuario ${ID_USUARIO}:`, errDesembolso);
+                        return res.redirect('/Vista_Analista.html?update=exito&error=saldo');
+                    }
+                    console.log(`💵 ¡DESEMBOLSO EXITOSO! Se cargaron $${MONTO_SOLICITADO} al saldo del usuario ${ID_USUARIO}`);
+                    return res.redirect('/Vista_Analista.html?update=exito');
+                });
+            });
+        } else {
+            res.redirect('/Vista_Analista.html?update=exito'); 
+        }
+    });
+};
+
+// 4. Metodo DELETE: Eliminar físicamente el registro
+exports.borrarCredito = (req, res) => {
+    const { idCredito } = req.body;
+
+    Credito.eliminar(idCredito, (error, result) => {
+        if (error) {
+            console.error('❌ Error al eliminar crédito:', error);
+            return res.status(500).send('Error interno');
+        }
+        console.log(`🗑️ Crédito N° ${idCredito} eliminado con éxito de MySQL`);
+        res.redirect('/Vista_Analista.html?delete=exito');
+    });
+};
+
+// 5. Metodo READ: para que el usuario pueda ver el estado del crédito por cédula 
+exports.obtenerEstadoUsuario = (req, res) => {
+    const { cedula } = req.params;
+
+    Credito.buscarPorCedula(Number(cedula), (error, filas) => {
+        if (error) {
+            console.error('❌ Error al buscar crédito del usuario:', error);
+            return res.status(500).json({ mensaje: 'Error interno' });
+        }
+        
+        if (filas.length === 0) {
+            return res.json({ tieneCredito: false });
+        }
+
+        res.json({
+            tieneCredito: true,
+            idCredito: filas[0].ID_CREDITO,
+            estado: filas[0].ESTADO,
+            montoSolicitado: filas[0].MONTO_SOLICITADO
+        });
+    });
 };
