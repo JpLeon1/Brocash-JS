@@ -104,28 +104,41 @@ exports.modificarEstado = (req, res) => {
         
         console.log(`✅ Crédito N° ${idCredito} actualizado a: ${nuevoEstado}`);
 
-        // 2. Se realiza el desembolso solo si el nuevo estado es 'Aprobado'
-        if (nuevoEstado.toLowerCase() === 'aprobado') {
-            const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO FROM CREDITO WHERE ID_CREDITO = ?";
-            
-            require('../config/db').query(queryBuscarCredito, [idCredito], (errBusqueda, filas) => {
-                if (errBusqueda || filas.length === 0) {
-                    console.error('❌ Error al buscar datos del crédito para desembolso:', errBusqueda);
-                    return res.redirect('/Vista_Analista.html?update=exito&error=desembolso');
-                }
+       // 2. Se realiza el desembolso solo si el nuevo estado es 'Aprobado'
+if (nuevoEstado.toLowerCase() === 'aprobado') {
+    const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO FROM CREDITO WHERE ID_CREDITO = ?";
+    
+    require('../config/db').query(queryBuscarCredito, [idCredito], (errBusqueda, filas) => {
+        if (errBusqueda || filas.length === 0) {
+            console.error('❌ Error al buscar datos del crédito para desembolso:', errBusqueda);
+            return res.redirect('/Vista_Analista.html?update=exito&error=desembolso');
+        }
 
-                const { ID_USUARIO, MONTO_SOLICITADO } = filas[0];
+        const registro = filas[0];
+        const idUsuario = registro.ID_USUARIO || registro.id_usuario || registro.IdUsuario;
+        const montoSolicitado = registro.MONTO_SOLICITADO || registro.monto_solicitado || registro.MontoSolicitado;
 
-                // Llamamos al método del modelo para realizar el desembolso
-                Credito.desembolsarDinero(ID_USUARIO, MONTO_SOLICITADO, (errDesembolso, resDesembolso) => {
-                    if (errDesembolso) {
-                        console.error(`❌ Error al depositar dinero al usuario ${ID_USUARIO}:`, errDesembolso);
-                        return res.redirect('/Vista_Analista.html?update=exito&error=saldo');
-                    }
-                    console.log(`💵 ¡DESEMBOLSO EXITOSO! Se cargaron $${MONTO_SOLICITADO} al saldo del usuario ${ID_USUARIO}`);
-                    return res.redirect('/Vista_Analista.html?update=exito');
-                });
-            });
+        console.log(`📡 Datos recuperados de la BD -> Usuario: ${idUsuario}, Monto: ${montoSolicitado}`);
+
+        if (!idUsuario || !montoSolicitado) {
+            console.error('❌ Error: Las columnas de la BD no coinciden con las propiedades del objeto:', registro);
+            return res.redirect('/Vista_Analista.html?update=exito&error=columnas');
+        }
+
+        // Llamamos al método del modelo para realizar el desembolso
+        Credito.desembolsarDinero(idUsuario, montoSolicitado, (errDesembolso, resDesembolso) => {
+            if (errDesembolso) {
+                console.error(`❌ Error al depositar dinero al usuario ${idUsuario}:`, errDesembolso);
+                return res.redirect('/Vista_Analista.html?update=exito&error=saldo');
+            }
+            console.log(`💵 ¡DESEMBOLSO EXITOSO! Se cargaron $${montoSolicitado} al saldo del usuario ${idUsuario}`);
+            return res.redirect('/Vista_Analista.html?update=exito');
+        });
+    });
+} else {
+    // 🔀 Si el estado es Rechazado o cualquier otro, redirigimos directamente sin desembolsar
+    res.redirect('/Vista_Analista.html?update=exito');
+}
         } else {
             res.redirect('/Vista_Analista.html?update=exito'); 
         }
