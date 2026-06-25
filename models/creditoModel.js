@@ -5,12 +5,12 @@ const Credito = {
     // 1. METODO CREATE - Crear una nueva solicitud de crédito (clientes o usuarios)
     crear: (datosCredito, callback) => {
         const query = `INSERT INTO CREDITO 
-            (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS,MONTO_SOLICITADO, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         
         db.query(query, [
             datosCredito.idCredito, datosCredito.Cedula, datosCredito.idAnalista,
-            datosCredito.ingresos, datosCredito.estado, datosCredito.Nombre,
+            datosCredito.ingresos, datosCredito.montoSolicitado, datosCredito.estado, datosCredito.Nombre,
             datosCredito.email, datosCredito.ocupacion, datosCredito.telefono, datosCredito.fechaSolicitud
         ], callback);
     },
@@ -43,6 +43,12 @@ verificarPendiente: (cedulaUsuario, callback) => {
     // Realizamos la busqueda en la Base de Datos para verificar  si existe un registro con esa cédula y cual es su  estado.
     const query = "SELECT * FROM CREDITO WHERE ID_USUARIO = ? AND UPPER(ESTADO) = 'PENDIENTE'";
     db.query(query, [cedulaUsuario], callback);
+},
+// Método para sumar el dinero del crédito aprobado al saldo de la cuenta del usuario
+desembolsarDinero: (idUsuario, monto, callback) => {
+    // Tomamos el saldo actual y le sumamos el monto del préstamo
+    const query = "UPDATE CUENTA SET SALDO = SALDO + ? WHERE ID_USUARIO = ?";
+    db.query(query, [monto, idUsuario], callback);
 }
 
 };

@@ -34,8 +34,11 @@
         <label>Teléfono</label>
         <input type="tel" name="telefono" placeholder="Teléfono" required>
         
-        <label>Ingresos Mensuales ($)</label>
-        <input type="number" name="ingresos" placeholder="Ej: 2000000" required>
+       <label for="ingresos_mensuales">Ingresos Mensuales del Cliente ($):</label>
+        <input type="number" name="ingresos_mensuales" id="ingresos_mensuales" placeholder="Ej. 1500000" required>
+
+        <label for="monto_solicitado">Monto del Crédito Solicitado ($):</label>
+        <input type="number" name="monto_solicitado" id="monto_solicitado" placeholder="Ej. 3000000" required>
 
         <label>Adjuntar desprendible de pago</label>
         <input type="file" name="desprendible">
