@@ -2,22 +2,30 @@
 const db = require('../config/db');
 
 const Credito = {
-    // 1. METODO CREATE - Crear una nueva solicitud de crédito (clientes o usuarios)
-    crear: (datosCredito, callback) => {
-        const query = `INSERT INTO CREDITO 
-            (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS,MONTO_SOLICITADO, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        
-        db.query(query, [
-            datosCredito.idCredito, datosCredito.Cedula, datosCredito.idAnalista,
-            datosCredito.ingresos_mensuales, datosCredito.monto_Solicitado, datosCredito.estado, datosCredito.Nombre,
-            datosCredito.email, datosCredito.ocupacion, datosCredito.telefono, datosCredito.fechaSolicitud
-        ], callback);
-    },
-    // Buscar la solicitud de crédito más reciente por cédula de usuario 
-    buscarPorCedula: (cedula, callback) => {
-    const query = "SELECT * FROM CREDITO WHERE ID_USUARIO = ? ORDER BY FECHA_SOLICITUD DESC LIMIT 1";
-    db.query(query, [cedula], callback);
+   // models/creditoModel.js
+
+// 1. METODO CREATE - Crear una nueva solicitud de crédito (clientes o usuarios)
+crear: (datosCredito, callback) => {
+    const query = `INSERT INTO CREDITO 
+        (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, MONTO_SOLICITADO, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    // 🛡️ Buscamos la propiedad asegurándonos de capturar cualquier combinación de mayúsculas/minúsculas
+    const valorMonto = datosCredito.montoSolicitado || datosCredito.MontoSolicitado || datosCredito.monto_solicitado;
+
+    db.query(query, [
+        datosCredito.idCredito, 
+        datosCredito.Cedula, 
+        datosCredito.idAnalista,
+        datosCredito.ingresos, 
+        valorMonto, 
+        datosCredito.estado, 
+        datosCredito.Nombre,
+        datosCredito.email, 
+        datosCredito.ocupacion, 
+        datosCredito.telefono, 
+        datosCredito.fechaSolicitud
+    ], callback);
 },
 
     // 2. METODO READ - Obtener todos los créditos para el Analista 
