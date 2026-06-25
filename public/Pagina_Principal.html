@@ -19,14 +19,17 @@
         <h2>Bienvenido</h2>
         <p>Tu plataforma de crédito en línea</p>
 
-        <input type="number" name="Cedula" placeholder="Cédula" required>
-        
+        <input type="number" id="login-cedula" name="Cedula" placeholder="Cédula" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         
         <label class="check">
             <input type="checkbox"> Recordar
         </label>
-        <button type="submit">Ingresar</button>
+
+        <div id="seccion-acciones-credito">
+            <button type="submit">Ingresar</button>
+        </div>
+
         <div class="links">
             <a href="Registro_de_usuario.html">Registro</a>
             <a href="Recuperar_contraseña.html">Olvidé mi contraseña</a>
@@ -36,6 +39,32 @@
 
     </form>
 </div>
+
+<script>
+    document.getElementById("login-cedula").addEventListener("blur", function() {
+        const cedula = this.value;
+        const contenedorAcciones = document.getElementById("seccion-acciones-credito");
+
+        if (cedula && cedula.length >= 5) {
+            fetch(`/api/credito/usuario/${cedula}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.tieneCredito) {
+                        contenedorAcciones.innerHTML = `
+                            <div class="info-credito-login" style="border-left-color: ${data.estado === 'Aprobado' ? '#2ecc71' : data.estado === 'Rechazado' ? '#e74c3c' : '#f1c40f'}">
+                                <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>⚠️ Solicitud Activa N° ${data.idCredito}</strong></p>
+                                <p style="margin: 0; font-size: 14px;">Estado actual: <span class="badge-login ${data.estado}">${data.estado}</span></p>
+                            </div>
+                            <button type="submit">Ingresar a mi Cuenta</button>
+                        `;
+                    } else {
+                        contenedorAcciones.innerHTML = `<button type="submit">Ingresar</button>`;
+                    }
+                })
+                .catch(error => console.error("❌ Error al comprobar estado del crédito:", error));
+        }
+    });
+</script>
 
 </body>
 </html>

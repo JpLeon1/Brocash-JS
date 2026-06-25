@@ -14,6 +14,11 @@ const Credito = {
             datosCredito.email, datosCredito.ocupacion, datosCredito.telefono, datosCredito.fechaSolicitud
         ], callback);
     },
+    // Buscar la solicitud de crédito más reciente por cédula de usuario 
+    buscarPorCedula: (cedula, callback) => {
+    const query = "SELECT * FROM CREDITO WHERE ID_USUARIO = ? ORDER BY FECHA_SOLICITUD DESC LIMIT 1";
+    db.query(query, [cedula], callback);
+},
 
     // 2. METODO READ - Obtener todos los créditos para el Analista 
     obtenerTodos: (callback) => {

@@ -115,3 +115,28 @@ exports.borrarCredito = (req, res) => {
         res.redirect('/Vista_Analista.html?delete=exito');
     });
 };
+
+// 5 Metodo READ: para que el usuario pueda ver el estado del crédito de un usuario por cédula 
+exports.obtenerEstadoUsuario = (req, res) => {
+    const { cedula } = req.params;
+
+    Credito.buscarPorCedula(Number(cedula), (error, filas) => {
+        if (error) {
+            console.error('❌ Error al buscar crédito del usuario:', error);
+            return res.status(500).json({ mensaje: 'Error interno' });
+        }
+        
+        // Si no tiene créditos, enviamos un objeto vacío o indicador
+        if (filas.length === 0) {
+            return res.json({ tieneCredito: false });
+        }
+
+        // Si tiene, enviamos el estado y la información del último crédito
+        res.json({
+            tieneCredito: true,
+            idCredito: filas[0].ID_CREDITO,
+            estado: filas[0].ESTADO,
+            ingresos: filas[0].INGRESOS
+        });
+    });
+};

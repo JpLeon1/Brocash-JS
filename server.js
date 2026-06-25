@@ -24,6 +24,8 @@ app.post('/RegistroServlet', authController.registrar);
 
 // Ruta POST: El proceso de Login
 app.post('/LoginServlet', authController.login);
+// Ruta GET: Para obtener el estado del crédito de un usuario por cédula
+app.get('/api/credito/usuario/:cedula', creditoController.obtenerEstadoUsuario);
 
 // ==========================================
 // 4. RUTAS DEL CRUD DE CRÉDITOS 
