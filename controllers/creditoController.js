@@ -139,9 +139,7 @@ if (nuevoEstado.toLowerCase() === 'aprobado') {
     // 🔀 Si el estado es Rechazado o cualquier otro, redirigimos directamente sin desembolsar
     res.redirect('/Vista_Analista.html?update=exito');
 }
-        } else {
-            res.redirect('/Vista_Analista.html?update=exito'); 
-        }
+
     });
 };
 
