@@ -10,7 +10,7 @@ const Credito = {
         
         db.query(query, [
             datosCredito.idCredito, datosCredito.Cedula, datosCredito.idAnalista,
-            datosCredito.ingresos, datosCredito.montoSolicitado, datosCredito.estado, datosCredito.Nombre,
+            datosCredito.ingresos_mensuales, datosCredito.monto_Solicitado, datosCredito.estado, datosCredito.Nombre,
             datosCredito.email, datosCredito.ocupacion, datosCredito.telefono, datosCredito.fechaSolicitud
         ], callback);
     },

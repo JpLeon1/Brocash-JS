@@ -4,7 +4,7 @@ const Credito = require('../models/creditoModel');
 // 1. Método CREATE: Procesar la Solicitud de Crédito
 exports.procesarSolicitud = (req, res) => {
     // 1. Extraemos la informacion del formulario HTML
-    const { Nombre, Cedula, email, ocupacion, telefono, ingresos, monto_solicitado, fechaSolicitud } = req.body;
+    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_Solicitado, fechaSolicitud } = req.body;
 
     console.log(`📡 Controlador: Iniciando validación para cédula ${Cedula}`);
 
@@ -40,8 +40,8 @@ exports.procesarSolicitud = (req, res) => {
             idCredito,
             Cedula: Number(Cedula),
             idAnalista,
-            ingresos: Number(ingresos),
-            montoSolicitado: Number(monto_solicitado),
+            ingresos: Number(ingresos_mensuales),
+            montoSolicitado: Number(monto_Solicitado),
             estado, 
             Nombre,
             email,
