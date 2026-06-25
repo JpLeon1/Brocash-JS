@@ -161,6 +161,7 @@ exports.borrarCredito = (req, res) => {
 exports.obtenerEstadoUsuario = (req, res) => {
     const { cedula } = req.params;
 
+    // 🛠️ Verificación: 'buscarPorCedula' debe tener la C mayúscula
     Credito.buscarPorCedula(Number(cedula), (error, filas) => {
         if (error) {
             console.error('❌ Error al buscar crédito del usuario:', error);
