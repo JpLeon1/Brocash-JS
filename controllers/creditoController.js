@@ -20,7 +20,8 @@ const creditosSimuladosDB = [
 // 1. Método CREATE: Procesar la Solicitud de Crédito (SIMULADO)
 exports.procesarSolicitud = (req, res) => {
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_Solicitado, fechaSolicitud } = req.body;
-    console.log(`📡 Controlador (Simulado): Validando solicitud para cédula ${Cedula}`);
+
+console.log(`📡 Controlador: Iniciando validación para cédula ${Cedula}`);
 
     // Buscamos si ya tiene un crédito 'Pendiente' en nuestro arreglo
     const tienePendiente = creditosSimuladosDB.some(c => c.CEDULA === Number(Cedula) && c.ESTADO === 'Pendiente');
