@@ -1,10 +1,6 @@
 const express = require('express');
 const path = require('path');
-const db = require('./config/db.js'); 
-
-// 🚀 CREAMOS NUESTRA BASE DE DATOS SIMULADA EN MEMORIA:
-const solicitudesCreditoDB = []; 
-const usuariosDB = [];
+const db = require('./config/db.js');
 
 // ==========================================
 // 1. IMPORTACIÓN DE CONTROLADORES 

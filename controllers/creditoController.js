@@ -1,182 +1,138 @@
-// controllers/creditoController.js
-const Credito = require('../models/creditoModel'); 
+// const Credito = require('../models/creditoModel'); evita caidas sin XAMPP
 
-// 1. Método CREATE: Procesar la Solicitud de Crédito
+
+const creditosSimuladosDB = [
+    {
+        ID_CREDITO: 458712,
+        CEDULA: 12345,
+        ID_ANALISTA: 1020856325,
+        INGRESOS: 2500000,
+        MONTO_SOLICITADO: 5000000,
+        ESTADO: 'Pendiente',
+        NOMBRE: 'Juan Pablo Leon Pineda',
+        EMAIL: 'juan@correo.com',
+        OCUPACION: 'Desarrollador',
+        TELEFONO: '3001234567',
+        FECHA_SOLICITUD: '2026-07-18'
+    }
+];
+
+// 1. Método CREATE: Procesar la Solicitud de Crédito (SIMULADO)
 exports.procesarSolicitud = (req, res) => {
-    // 1. Extraemos la informacion del formulario HTML
     const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_Solicitado, fechaSolicitud } = req.body;
+    console.log(`📡 Controlador (Simulado): Validando solicitud para cédula ${Cedula}`);
 
-    console.log(`📡 Controlador: Iniciando validación para cédula ${Cedula}`);
+    // Buscamos si ya tiene un crédito 'Pendiente' en nuestro arreglo
+    const tienePendiente = creditosSimuladosDB.some(c => c.CEDULA === Number(Cedula) && c.ESTADO === 'Pendiente');
 
-    // =========================================================================
-    // Metodo para Verificar si ya existe una solicitud 'Pendiente' y que esta no se "Duplique"
-    // =========================================================================
-    Credito.verificarPendiente(Number(Cedula), (errorVerificacion, filas) => {
-        if (errorVerificacion) {
-            console.error('❌ Error al verificar créditos pendientes:', errorVerificacion);
-            return res.status(500).send('Error interno del servidor al validar la solicitud');
-        }
+    if (tienePendiente) {
+        console.log(`⚠️ Bloqueado: El usuario ya tiene un crédito en estudio.`);
+        return res.send(`
+            <script>
+                alert("⚠️ Lo sentimos, ya cuentas con una solicitud de crédito en estado 'Pendiente'. Debes esperar a que el analista la evalúe.");
+                window.location.href = "javascript:history.back()"; 
+            </script>
+        `);
+    }
+    
+    const idCredito = Math.floor(100000 + Math.random() * 900000); 
+    const idAnalista = 1020856325; 
+    const estado = 'Pendiente'; 
 
-        // Si la consulta arroja algún resultado, bloqueamos la inserción
-        if (filas.length > 0) {
-            console.log(`⚠️ Bloqueado: El usuario con cédula ${Cedula} ya tiene un crédito en estudio.`);
-            return res.send(`
-                <script>
-                    alert("⚠️ Lo sentimos, ya cuentas con una solicitud de crédito en estado 'Pendiente'. Debes esperar a que el analista la evalúe.");
-                    window.location.href = "javascript:history.back()"; 
-                </script>
-            `);
-        }
-        
-        // 2. Generamos los valores automáticos del negocio
-        const idCredito = Math.floor(100000 + Math.random() * 900000); 
-        const idAnalista = 1020856325; // ID por defecto de un analista asignado
-        const estado = 'Pendiente'; //  Estado inicial de la solicitud
-
-        console.log(`📡 Controlador: Procesando solicitud N° ${idCredito} para ${Nombre}`);
-
-        // 3. Creamos un objeto con los datos completos para pasarlo al modelo
-        const nuevosDatos = {
-            idCredito,
-            Cedula: Number(Cedula),
-            idAnalista,
-            ingresos: Number(ingresos_mensuales),
-            montoSolicitado: Number(monto_Solicitado),
-            estado, 
-            Nombre,
-            email,
-            ocupacion,
-            telefono,
-            fechaSolicitud
-        };
-
-        // 4. Metodo "crear" de modelo Credito para insertar en la base de datos
-        Credito.crear(nuevosDatos, (error, results) => {
-            if (error) {
-                console.error('❌ Error en el modelo al insertar el crédito:', error);
-                return res.send(`
-                    <div style="text-align: center; font-family: Arial; padding-top: 50px;">
-                        <h2 style="color: #e74c3c;">Error al procesar la solicitud</h2>
-                        <p>Hubo un problema al guardar los datos ampliados. Verifica tu base de datos.</p>
-                        <a href="javascript:history.back()">Regresar al formulario</a>
-                    </div>
-                `);
-            }
-
-            console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
-            
-            // 5. Respuesta visual de éxito para el usuario en la pantalla 
-            res.send(`
-                <div style="text-align: center; font-family: Arial; padding-top: 50px;">
-                    <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
-                    <p>Estimado/a <strong>${Nombre}</strong>, tu solicitud ha sido enviada al analista asignado.</p>
-                    <p>Número de radicado: <strong>${idCredito}</strong></p>
-                    <p>Estado actual: <span style="background: #f1c40f; padding: 2px 6px; border-radius: 3px;"><strong>${estado}</strong></span></p>
-                    <br>
-                    <a href="/Pagina_Principal.html" style="text-decoration: none; background: #3498db; color: white; padding: 10px 20px; border-radius: 5px;">Finalizar y Salir</a>
-                </div>
-            `);
-        });
-    }); 
-};
-
-// 2. Metodo READ: Mostrar todos los créditos en la tabla del Analista
-exports.listarCreditos = (req, res) => {
-    Credito.obtenerTodos((error, rows) => {
-        if (error) {
-            console.error('❌ Error al leer los créditos:', error);
-            return res.status(500).json({ mensaje: 'Error al obtener créditos' });
-        }
-        res.json(rows); 
+    // Insertamos el nuevo objeto al arreglo en memoria
+    creditosSimuladosDB.push({
+        ID_CREDITO: idCredito,
+        CEDULA: Number(Cedula),
+        ID_ANALISTA: idAnalista,
+        INGRESOS: Number(ingresos_mensuales),
+        MONTO_SOLICITADO: Number(monto_Solicitado),
+        ESTADO: estado, 
+        NOMBRE: Nombre,
+        EMAIL: email,
+        OCUPACION: ocupacion,
+        TELEFONO: telefono,
+        FECHA_SOLICITUD: fechaSolicitud
     });
+
+    console.log(`✅ Solicitud N° ${idCredito} guardada exitosamente en memoria temporal.`);
+    
+    res.send(`
+        <div style="text-align: center; font-family: Arial; padding-top: 50px;">
+            <h1 style="color: #2ecc71;">¡Solicitud Radicada de Forma Exitosa! 🎉</h1>
+            <p>Estimado/a <strong>${Nombre}</strong>, tu solicitud ha sido enviada al analista asignado.</p>
+            <p>Número de radicado: <strong>${idCredito}</strong></p>
+            <p>Estado actual: <span style="background: #f1c40f; padding: 2px 6px; border-radius: 3px;"><strong>${estado}</strong></span></p>
+            <br>
+            <a href="/Pagina_Principal.html" style="text-decoration: none; background: #3498db; color: white; padding: 10px 20px; border-radius: 5px;">Finalizar y Salir</a>
+        </div>
+    `);
 };
 
-// 3. Metodo UPDATE: Modificar el estado de un crédito y desembolsar si es aprobado
+// 2. Metodo READ: Mostrar todos los créditos en la tabla del Analista (SIMULADO)
+exports.listarCreditos = (req, res) => {
+    // Mapeamos los datos para asegurar que respondan con la estructura exacta que espera el frontend
+    const rows = creditosSimuladosDB.map(c => ({
+        ID_CREDITO: c.ID_CREDITO,
+        ID_USUARIO: c.CEDULA,
+        INGRESOS: c.INGRESOS,
+        MONTO_SOLICITADO: c.MONTO_SOLICITADO,
+        ESTADO: c.ESTADO,
+        NOMBRE: c.NOMBRE,
+        EMAIL: c.EMAIL,
+        OCUPACION: c.OCUPACION,
+        TELEFONO: c.TELEFONO,
+        FECHA_SOLICITUD: c.FECHA_SOLICITUD
+    }));
+    res.json(rows); 
+};
+
+// 3. Metodo UPDATE: Modificar el estado de un crédito y desembolsar si es aprobado (SIMULADO)
 exports.modificarEstado = (req, res) => {
     const { idCredito, nuevoEstado } = req.body;
     
-    // 1. Primero se actualiza el estado del crédito en la base de datos
-    Credito.actualizarEstado(idCredito, nuevoEstado, (error, result) => {
-        if (error) {
-            console.error('❌ Error al actualizar crédito:', error);
-            return res.status(500).send('Error interno');
-        }
-        
-        console.log(`✅ Crédito N° ${idCredito} actualizado a: ${nuevoEstado}`);
+    const credito = creditosSimuladosDB.find(c => c.ID_CREDITO === Number(idCredito));
 
-       // 2. Se realiza el desembolso solo si el nuevo estado es 'Aprobado'
-if (nuevoEstado.toLowerCase() === 'aprobado') {
-    const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO FROM CREDITO WHERE ID_CREDITO = ?";
+    if (!credito) {
+        console.error('❌ Error: Crédito no encontrado en memoria.');
+        return res.redirect('/Vista_Analista.html?update=error');
+    }
+
+    credito.ESTADO = nuevoEstado;
+    console.log(`✅ Crédito N° ${idCredito} actualizado a: ${nuevoEstado} en memoria`);
+
+    if (nuevoEstado.toLowerCase() === 'aprobado') {
+        console.log(`💵 ¡DESEMBOLSO EXITOSO! (Simulado) Se cargaron $${credito.MONTO_SOLICITADO} al saldo del usuario CC: ${credito.CEDULA}`);
+    }
     
-    require('../config/db').query(queryBuscarCredito, [idCredito], (errBusqueda, filas) => {
-        if (errBusqueda || filas.length === 0) {
-            console.error('❌ Error al buscar datos del crédito para desembolso:', errBusqueda);
-            return res.redirect('/Vista_Analista.html?update=exito&error=desembolso');
-        }
-
-        const registro = filas[0];
-        const idUsuario = registro.ID_USUARIO || registro.id_usuario || registro.IdUsuario;
-        const montoSolicitado = registro.MONTO_SOLICITADO || registro.monto_solicitado || registro.MontoSolicitado;
-
-        console.log(`📡 Datos recuperados de la BD -> Usuario: ${idUsuario}, Monto: ${montoSolicitado}`);
-
-        if (!idUsuario || !montoSolicitado) {
-            console.error('❌ Error: Las columnas de la BD no coinciden con las propiedades del objeto:', registro);
-            return res.redirect('/Vista_Analista.html?update=exito&error=columnas');
-        }
-
-        // Llamamos al método del modelo para realizar el desembolso
-        Credito.desembolsarDinero(idUsuario, montoSolicitado, (errDesembolso, resDesembolso) => {
-            if (errDesembolso) {
-                console.error(`❌ Error al depositar dinero al usuario ${idUsuario}:`, errDesembolso);
-                return res.redirect('/Vista_Analista.html?update=exito&error=saldo');
-            }
-            console.log(`💵 ¡DESEMBOLSO EXITOSO! Se cargaron $${montoSolicitado} al saldo del usuario ${idUsuario}`);
-            return res.redirect('/Vista_Analista.html?update=exito');
-        });
-    });
-} else {
-    // 🔀 Si el estado es Rechazado o cualquier otro, redirigimos directamente sin desembolsar
-    res.redirect('/Vista_Analista.html?update=exito');
-}
-
-    });
+    return res.redirect('/Vista_Analista.html?update=exito');
 };
 
-// 4. Metodo DELETE: Eliminar físicamente el registro
+// 4. Metodo DELETE: Eliminar físicamente el registro (SIMULADO)
 exports.borrarCredito = (req, res) => {
     const { idCredito } = req.body;
 
-    Credito.eliminar(idCredito, (error, result) => {
-        if (error) {
-            console.error('❌ Error al eliminar crédito:', error);
-            return res.status(500).send('Error interno');
-        }
-        console.log(`🗑️ Crédito N° ${idCredito} eliminado con éxito de MySQL`);
-        res.redirect('/Vista_Analista.html?delete=exito');
-    });
+    const index = creditosSimuladosDB.findIndex(c => c.ID_CREDITO === Number(idCredito));
+    if (index !== -1) {
+        creditosSimuladosDB.splice(index, 1);
+        console.log(`🗑️ Crédito N° ${idCredito} eliminado con éxito de la memoria`);
+    }
+    res.redirect('/Vista_Analista.html?delete=exito');
 };
 
-// 5. Metodo READ: para que el usuario pueda ver el estado del crédito por cédula 
+// 5. Metodo READ: para que el usuario pueda ver el estado del crédito por cédula (SIMULADO)
 exports.obtenerEstadoUsuario = (req, res) => {
     const { cedula } = req.params;
 
-    // 🛠️ Verificación: 'buscarPorCedula' debe tener la C mayúscula
-    Credito.buscarPorCedula(Number(cedula), (error, filas) => {
-        if (error) {
-            console.error('❌ Error al buscar crédito del usuario:', error);
-            return res.status(500).json({ mensaje: 'Error interno' });
-        }
-        
-        if (filas.length === 0) {
-            return res.json({ tieneCredito: false });
-        }
+    const solicitudes = creditosSimuladosDB.filter(c => c.CEDULA === Number(cedula));
+    
+    if (solicitudes.length === 0) {
+        return res.json({ tieneCredito: false });
+    }
 
-        res.json({
-            tieneCredito: true,
-            idCredito: filas[0].ID_CREDITO,
-            estado: filas[0].ESTADO,
-            montoSolicitado: filas[0].MONTO_SOLICITADO
-        });
+    res.json({
+        tieneCredito: true,
+        idCredito: solicitudes[0].ID_CREDITO,
+        estado: solicitudes[0].ESTADO,
+        montoSolicitado: solicitudes[0].MONTO_SOLICITADO
     });
 };
