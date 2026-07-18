@@ -29,18 +29,18 @@
     </table>
 </div>
 
-<form id="form-actualizar" action="/credito/actualizar" method="POST" style="display:none;">
+<form id="form-actualizar" action="/modificar-estado" method="POST" style="display:none;">
     <input type="hidden" name="idCredito" id="act-id">
     <input type="hidden" name="nuevoEstado" id="act-estado">
 </form>
 
-<form id="form-eliminar" action="/credito/eliminar" method="POST" style="display:none;">
+<form id="form-eliminar" action="/borrar-credito" method="POST" style="display:none;">
     <input type="hidden" name="idCredito" id="elim-id">
 </form>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        fetch('/api/creditos')
+        fetch('/listar-creditos')
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector("#tabla-creditos tbody");
