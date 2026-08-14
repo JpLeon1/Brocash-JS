@@ -102,6 +102,6 @@ El proyecto incluye diagramas UML de:
 
 Juan Pablo Leon Pineda. https://github.com/JpLeon1
 Brandon Stiven Ganzo Murcia. https://github.com/Stiven89
-Jonathan Fernando Riaño Calonge. 
+Jonathan Fernando Riaño Calonge. https://github.com/jonaria230897
 Erika Mayerly Mora Rodriguez. 
 
