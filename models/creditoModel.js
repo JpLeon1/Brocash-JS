@@ -7,21 +7,19 @@ const Credito = {
 // 1. METODO CREATE - Crear una nueva solicitud de crédito (clientes o usuarios)
 crear: (datosCredito, callback) => {
     const query = `INSERT INTO CREDITO 
-        (ID_CREDITO, ID_USUARIO, ID_ANALISTA, INGRESOS, MONTO_SOLICITADO, ESTADO, NOMBRE_COMPLETO, EMAIL, OCUPACION, TELEFONO, FECHA_SOLICITUD) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        (ID_USUARIO, ID_ANALISTA, INGRESOS, MONTO_SOLICITADO, ESTADO, NOMBRE_COMPLETO,OCUPACION, TELEFONO, FECHA_SOLICITUD) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     // 🛡️ Buscamos la propiedad asegurándonos de capturar cualquier combinación de mayúsculas/minúsculas
-    const valorMonto = datosCredito.montoSolicitado || datosCredito.MontoSolicitado || datosCredito.monto_solicitado;
+    const valorMonto = datosCredito.montoSolicitado;
 
     db.query(query, [
-        datosCredito.idCredito, 
         datosCredito.Cedula, 
         datosCredito.idAnalista,
         datosCredito.ingresos, 
         valorMonto, 
         datosCredito.estado, 
         datosCredito.Nombre,
-        datosCredito.email, 
         datosCredito.ocupacion, 
         datosCredito.telefono, 
         datosCredito.fechaSolicitud

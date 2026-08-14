@@ -46,7 +46,7 @@
         const contenedorAcciones = document.getElementById("seccion-acciones-credito");
 
         if (cedula && cedula.length >= 5) {
-            fetch(`/api/credito/usuario/${cedula}`)
+            fetch(`/estado-credito/${cedula}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.tieneCredito) {
