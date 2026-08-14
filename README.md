@@ -90,11 +90,12 @@ Brocash-JS/
 
 ## 📄 Documentación
 
-El proyecto incluye diagramas UML de:
-- Casos de uso
-- Actividades
-- Clases
-- Paquetes
+El proyecto incluye la siguiente documentación:
+
+### Manuales
+
+- **Manual de Usuario:** guía para el registro, solicitud de crédito, pagos, consulta del estado del préstamo y creación de PQR.
+- **Manual Técnico:** guía para la instalación, configuración y ejecución del proyecto en un entorno local.
 
 ---
 
