@@ -11,7 +11,7 @@ crear: (datosCredito, callback) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     // 🛡️ Buscamos la propiedad asegurándonos de capturar cualquier combinación de mayúsculas/minúsculas
-    const valorMonto = datosCredito.montoSolicitado;
+    const valorMonto = datosCredito.montosolicitado;
 
     db.query(query, [
         datosCredito.Cedula, 
