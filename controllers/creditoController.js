@@ -6,7 +6,7 @@ const esJSON = (req) => req.is('application/json');
 
 // 1. Método CREATE: Procesar la Solicitud de Crédito
 exports.procesarSolicitud = (req, res) => {
-    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_solicitado } = req.body;
+    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_Solicitado } = req.body;
     const fechaSolicitud = req.body.fechaSolicitud && req.body.fechaSolicitud.trim() !== ''
         ? req.body.fechaSolicitud
         : new Date().toISOString().slice(0, 10);
@@ -49,7 +49,7 @@ exports.procesarSolicitud = (req, res) => {
             Cedula: Number(Cedula),
             idAnalista,
             ingresos: Number(ingresos_mensuales),
-            montosolicitado: Number(monto_solicitado),
+            montosolicitado: Number(montoSolicitado),
             estado,
             Nombre,
             email,
@@ -84,7 +84,7 @@ exports.procesarSolicitud = (req, res) => {
 
 
     console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
-    
+
             console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
 
             if (esJSON(req)) {
@@ -95,7 +95,7 @@ exports.procesarSolicitud = (req, res) => {
                         idCredito,
                         Cedula: Number(Cedula),
                         estado,
-                        montosolicitado: Number(monto_solicitado),
+                        montosolicitado: Number(montoSolicitado),
                         fechaSolicitud
                     }
                 });
