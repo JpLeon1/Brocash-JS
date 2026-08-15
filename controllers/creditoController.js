@@ -6,7 +6,7 @@ const esJSON = (req) => req.is('application/json');
 
 // 1. Método CREATE: Procesar la Solicitud de Crédito
 exports.procesarSolicitud = (req, res) => {
-    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, monto_Solicitado } = req.body;
+    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, montoSolicitado } = req.body;
     const fechaSolicitud = req.body.fechaSolicitud && req.body.fechaSolicitud.trim() !== ''
         ? req.body.fechaSolicitud
         : new Date().toISOString().slice(0, 10);
