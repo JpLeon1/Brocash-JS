@@ -49,7 +49,7 @@ exports.procesarSolicitud = (req, res) => {
             Cedula: Number(Cedula),
             idAnalista,
             ingresos: Number(ingresos_mensuales),
-            montosolicitado: Number(montoSolicitado),
+            montoSolicitado: Number(montoSolicitado),
             estado,
             Nombre,
             email,
@@ -95,7 +95,7 @@ exports.procesarSolicitud = (req, res) => {
                         idCredito,
                         Cedula: Number(Cedula),
                         estado,
-                        montosolicitado: Number(montoSolicitado),
+                        montoSolicitado: Number(montoSolicitado),
                         fechaSolicitud
                     }
                 });
