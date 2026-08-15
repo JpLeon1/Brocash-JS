@@ -42,7 +42,7 @@ exports.procesarSolicitud = (req, res) => {
         const idAnalista = 1020856325;
         const estado = 'Pendiente';
 
-        console.log(`📡 Controlador: Procesando solicitud N° ${idCredito} para ${Nombre}`);
+        console.log(`📡 Controlador: Procesando solicitud de crédito para ${Nombre}`);
 
         const nuevosDatos = {
             
@@ -82,9 +82,9 @@ exports.procesarSolicitud = (req, res) => {
     // ID generado automáticamente por MySQL
     const idCredito = results.insertId;
 
-    console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
 
-    // Aquí continúa el resto del código...
+    console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
+    
             console.log(`✅ Controlador: Crédito N° ${idCredito} guardado exitosamente a través del Modelo.`);
 
             if (esJSON(req)) {
