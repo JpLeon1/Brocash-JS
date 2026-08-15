@@ -38,7 +38,6 @@ exports.procesarSolicitud = (req, res) => {
             `);
         }
 
-        // Generamos un ID único para la solicitud de crédito
         const idAnalista = 1020856325;
         const estado = 'Pendiente';
 
