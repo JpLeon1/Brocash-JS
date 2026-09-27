@@ -8,90 +8,142 @@
 </head>
 <body>
 
-<div class="container-analista">
-    <h1>Panel de Control - Solicitudes de Crédito</h1>
-    <p>Bienvenido Analista. Aquí puedes gestionar, evaluar y auditar el estado de los créditos del sistema Brocash.</p>
-    
-    <table class="tabla-creditos" id="tabla-creditos">
-        <thead>
-            <tr>
-                <th>ID Crédito</th>
-                <th>Cliente</th>
-                <th>Cédula</th>
-                <th>Ingresos</th>
-                <th>Teléfono</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Encabezado con Logo -->
+    <header class="header">
+        <div class="encabezado">
+            <img src="Logos/Logo.png" class="logo" alt="Brocash Logo">
+            <h1>Panel de Control de Analistas</h1>
+        </div>
+    </header>
+
+    <div class="container-analista">
+        <h2>Solicitudes de Crédito</h2>
+        <p>Bienvenido Analista. Aquí puedes gestionar, evaluar y auditar el estado de los créditos del sistema Brocash.</p>
+        
+        <!-- Botón para cerrar sesión -->
+        <div style="text-align: right; margin-bottom: 15px;">
+            <button class="btn-crud btn-eliminar" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <table class="tabla-creditos" id="tabla-creditos">
+            <thead>
+                <tr>
+                    <th>ID Crédito</th>
+                    <th>Cliente</th>
+                    <th>Cédula</th>
+                    <th>Ingresos</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se llena dinámicamente con JavaScript -->
             </tbody>
-    </table>
-</div>
+        </table>
+    </div>
 
-<form id="form-actualizar" action="/modificar-estado" method="POST" style="display:none;">
-    <input type="hidden" name="idCredito" id="act-id">
-    <input type="hidden" name="nuevoEstado" id="act-estado">
-</form>
+    <!-- Script de Control de Acceso y Gestión de Créditos -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. VALIDACIÓN DE ROL DE ANALISTA (Protección de la Vista)
+            const usuarioLogueado = JSON.parse(sessionStorage.getItem("usuarioLogueado"));
 
-<form id="form-eliminar" action="/borrar-credito" method="POST" style="display:none;">
-    <input type="hidden" name="idCredito" id="elim-id">
-</form>
+            if (!usuarioLogueado || usuarioLogueado.rol !== 'analista') {
+                alert("⛔ Acceso denegado. Se requieren permisos de Analista para ingresar a esta sección.");
+                window.location.href = "Pagina_Principal.html";
+                return;
+            }
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch('/listar-creditos')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector("#tabla-creditos tbody");
-                tbody.innerHTML = "";
+            // 2. CARGAR LA TABLA DE CRÉDITOS DESDE EL BACKEND
+            cargarTablaCreditos();
+        });
 
-                if(data.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No hay solicitudes de crédito registradas.</td></tr>";
-                    return;
-                }
+        function cargarTablaCreditos() {
+            fetch('/listar-creditos')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("#tabla-creditos tbody");
+                    tbody.innerHTML = "";
 
-                data.forEach(credito => {
-                    const tr = document.createElement("tr");
-                    
-                    let claseEstado = "status-pendiente";
-                    if(credito.ESTADO.toLowerCase() === 'aprobado') claseEstado = "status-aprobado";
-                    if(credito.ESTADO.toLowerCase() === 'rechazado') claseEstado = "status-rechazado";
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No hay solicitudes de crédito registradas.</td></tr>";
+                        return;
+                    }
 
-                    tr.innerHTML = `
-                        <td>${credito.ID_CREDITO}</td>
-                        <td>${credito.NOMBRE_COMPLETO || 'N/A'}</td>
-                        <td>${credito.ID_USUARIO}</td>
-                        <td>$${parseFloat(credito.INGRESOS).toLocaleString('es-CO')}</td>
-                        <td>${credito.TELEFONO || 'N/A'}</td>
-                        <td><span class="status-crud ${claseEstado}">${credito.ESTADO}</span></td>
-                        <td>
-                            <button class="btn-crud btn-aprobar" onclick="cambiarEstado(${credito.ID_CREDITO}, 'Aprobado')">✓ Aprobar</button>
-                            <button class="btn-crud btn-rechazar" onclick="cambiarEstado(${credito.ID_CREDITO}, 'Rechazado')">✕ Rechazar</button>
-                            <button class="btn-crud btn-eliminar" onclick="eliminarCredito(${credito.ID_CREDITO})">🗑 Borrar</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                    data.forEach(credito => {
+                        const tr = document.createElement("tr");
+                        
+                        let claseEstado = "status-pendiente";
+                        if (credito.ESTADO && credito.ESTADO.toLowerCase() === 'aprobado') claseEstado = "status-aprobado";
+                        if (credito.ESTADO && credito.ESTADO.toLowerCase() === 'rechazado') claseEstado = "status-rechazado";
+
+                        tr.innerHTML = `
+                            <td>${credito.ID_CREDITO}</td>
+                            <td>${credito.NOMBRE_COMPLETO || 'N/A'}</td>
+                            <td>${credito.ID_USUARIO}</td>
+                            <td>$${parseFloat(credito.INGRESOS || 0).toLocaleString('es-CO')}</td>
+                            <td>${credito.TELEFONO || 'N/A'}</td>
+                            <td><span class="status-crud ${claseEstado}">${credito.ESTADO}</span></td>
+                            <td>
+                                <button class="btn-crud btn-aprobar" onclick="cambiarEstado(${credito.ID_CREDITO}, 'Aprobado')">✓ Aprobar</button>
+                                <button class="btn-crud btn-rechazar" onclick="cambiarEstado(${credito.ID_CREDITO}, 'Rechazado')">✕ Rechazar</button>
+                                <button class="btn-crud btn-eliminar" onclick="eliminarCredito(${credito.ID_CREDITO})">🗑 Borrar</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => console.error("❌ Error al consumir la API de créditos:", error));
+        }
+
+        // 3. CAMBIAR ESTADO MEDIANTE PETICIÓN PUT (REST)
+        function cambiarEstado(id, nuevoEstado) {
+            if (confirm(`¿Estás seguro de cambiar el estado del crédito N° ${id} a ${nuevoEstado}?`)) {
+                fetch('/modificar-estado', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        id_credito: id, 
+                        nuevo_estado: nuevoEstado 
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.mensaje || `Estado actualizado a ${nuevoEstado} exitosamente.`);
+                    cargarTablaCreditos(); // Recarga la tabla sin refrescar la página
+                })
+                .catch(err => {
+                    console.error("Error al actualizar estado:", err);
+                    alert("Ocurrió un error al actualizar el estado del crédito.");
                 });
-            })
-            .catch(error => console.error("❌ Error al consumir la API de créditos:", error));
-    });
-
-    function cambiarEstado(id, estado) {
-        if(confirm(`¿Estás seguro de cambiar el estado del crédito N° ${id} a ${estado}?`)) {
-            document.getElementById("act-id").value = id;
-            document.getElementById("act-estado").value = estado;
-            document.getElementById("form-actualizar").submit();
+            }
         }
-    }
 
-    function eliminarCredito(id) {
-        if(confirm(`⚠️ ¿Realmente deseas ELIMINAR el crédito N° ${id}? Esta acción no se puede deshacer.`)) {
-            document.getElementById("elim-id").value = id;
-            document.getElementById("form-eliminar").submit();
+        // 4. ELIMINAR CRÉDITO MEDIANTE PETICIÓN DELETE (REST)
+        function eliminarCredito(id) {
+            if (confirm(`⚠️ ¿Realmente deseas ELIMINAR el crédito N° ${id}? Esta acción no se puede deshacer.`)) {
+                fetch(`/borrar-credito/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.mensaje || "Crédito eliminado correctamente.");
+                    cargarTablaCreditos();
+                })
+                .catch(err => {
+                    console.error("Error al eliminar crédito:", err);
+                    alert("Ocurrió un error al intentar eliminar el registro.");
+                });
+            }
         }
-    }
-</script>
+
+        // 5. CERRAR SESIÓN
+        function cerrarSesion() {
+            sessionStorage.removeItem("usuarioLogueado");
+            window.location.href = "Pagina_Principal.html";
+        }
+    </script>
 
 </body>
 </html>
