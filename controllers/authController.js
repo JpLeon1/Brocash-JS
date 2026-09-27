@@ -1,4 +1,3 @@
-// controllers/authController.js
 const Usuario = require('../models/usuarioModel'); 
 
 // LÓGICA PARA EL LOGIN
@@ -22,21 +21,28 @@ exports.login = (req, res) => {
         if (results.length > 0) {
             const usuarioEncontrado = results[0];
             
-            // Validacion de la contraseña
+            // Validación de la contraseña
             if (usuarioEncontrado.PASSWORD === password) {
                 console.log(`✅ Login exitoso. Bienvenido, ${usuarioEncontrado.NOMBRE}`);
+                
+                // Se ajusta  la ruta según el ROL guardado en la base de datos
+                const esAnalista = usuarioEncontrado.ROL === 'analista';
+                const rutaRedirect = esAnalista ? '/panel-analista.html' : '/Solicitud_de_credito.html';
+
                 if (req.is('application/json')) {
                     return res.status(200).json({
                         ok: true,
                         mensaje: 'Login exitoso',
+                        redirect: rutaRedirect,
                         usuario: {
                             Cedula: usuarioEncontrado.ID_USUARIO,
                             Nombre: usuarioEncontrado.NOMBRE,
-                            email: usuarioEncontrado.EMAIL
+                            email: usuarioEncontrado.EMAIL,
+                            rol: usuarioEncontrado.ROL || 'cliente'
                         }
                     });
                 }
-                return res.redirect('/Solicitud_de_credito.html');
+                return res.redirect(rutaRedirect);
             } else {
                 console.log('❌ Login fallido: Contraseña incorrecta.');
                 if (req.is('application/json')) {
@@ -60,16 +66,23 @@ exports.login = (req, res) => {
     });
 };
 
-// 📝 LÓGICA DE REGISTRO USUARIO    
+// LÓGICA DE REGISTRO DE USUARIO
 exports.registrar = (req, res) => {
     const { Nombre, Cedula, email, telefono, password, confirmPassword } = req.body;
     
     console.log(`📡 Intentando registrar a: ${Nombre} (CC: ${Cedula})`);
-    console.log(`🔑 Contraseña: ${password} | Confirmación: ${confirmPassword}`);
 
-    // 1. Validamos que las contraseñas coincidan
+    // Validamos que las contraseñas coincidan
     if (password && password === confirmPassword) {
-        const nuevoUsuario = { Nombre, Cedula, email, telefono, password };
+        
+        const nuevoUsuario = { 
+            Nombre, 
+            Cedula, 
+            email, 
+            telefono, 
+            password,
+            rol: 'cliente' 
+        };
 
         Usuario.crear(nuevoUsuario, (error, results) => {
             if (error) {
@@ -81,7 +94,6 @@ exports.registrar = (req, res) => {
                         error: error.code || 'DB_ERROR'
                     });
                 }
-                // Si falla la inserción en la BD, los regresa al formulario
                 return res.redirect('/Registro_de_usuario.html?error=formulario');
             }
             console.log(`✅ ¡Usuario ${Nombre} guardado con éxito en MySQL!`);
@@ -89,7 +101,7 @@ exports.registrar = (req, res) => {
                 return res.status(201).json({
                     ok: true,
                     mensaje: 'Usuario registrado correctamente',
-                    usuario: { Cedula, Nombre, email, telefono }
+                    usuario: { Cedula, Nombre, email, telefono, rol: 'cliente' }
                 });
             }
             return res.redirect('/Pagina_Principal.html?registro=exito');

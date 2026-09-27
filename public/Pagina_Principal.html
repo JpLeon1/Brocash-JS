@@ -14,12 +14,12 @@
     </div>
 </header>
 <div class="container">
-    <form class="form-card" action="/login" method="POST">
+    <form class="form-card" id="form-login">
         <h2>Bienvenido</h2>
         <p>Tu plataforma de crédito en línea</p>
 
         <input type="number" id="login-cedula" name="Cedula" placeholder="Cédula" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="password" id="login-password" name="password" placeholder="Contraseña" required>
         
         <label class="check">
             <input type="checkbox"> Recordar
@@ -40,6 +40,7 @@
 </div>
 
 <script>
+    // 1. COMPROBAR ESTADO DE CRÉDITO AL SALIR DEL CAMPO CÉDULA
     document.getElementById("login-cedula").addEventListener("blur", function() {
         const cedula = this.value;
         const contenedorAcciones = document.getElementById("seccion-acciones-credito");
@@ -62,6 +63,36 @@
                 })
                 .catch(error => console.error("❌ Error al comprobar estado del crédito:", error));
         }
+    });
+
+    // 2. ENVIAR FORMULARIO DE LOGIN CON CAPTURA EN SESSIONSTORAGE
+    document.getElementById("form-login").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const cedula = document.getElementById("login-cedula").value;
+        const password = document.getElementById("login-password").value;
+
+        fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ Cedula: cedula, password: password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                sessionStorage.setItem("usuarioLogueado", JSON.stringify(data.usuario));
+                window.location.href = data.redirect;
+            } else {
+                alert("❌ " + (data.mensaje || "Datos de ingreso incorrectos"));
+            }
+        })
+        .catch(err => {
+            console.error("❌ Error en el proceso de login:", err);
+            alert("Error al conectar con el servidor.");
+        });
     });
 </script>
 
