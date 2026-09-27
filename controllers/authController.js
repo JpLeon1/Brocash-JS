@@ -27,7 +27,7 @@ exports.login = (req, res) => {
                 
                 // Se ajusta  la ruta según el ROL guardado en la base de datos
                 const esAnalista = usuarioEncontrado.ROL === 'analista';
-                const rutaRedirect = esAnalista ? '/Vista_Analistas.html' : '/Solicitud_de_credito.html';       
+                const rutaRedirect = esAnalista ? '/Vista_Analista.html' : '/Solicitud_de_credito.html';       
 
                 if (req.is('application/json')) {
                     return res.status(200).json({
