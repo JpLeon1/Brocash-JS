@@ -267,3 +267,55 @@ h2 {
 .status-pendiente { background-color: #f1c40f; color: #fff; }
 .status-aprobado  { background-color: #2ecc71; color: #fff; }
 .status-rechazado  { background-color: #e74c3c; color: #fff; }
+
+/*   ESTILOS DE PASARELA DE PAGOS  */
+.card-pago {
+  max-width: 500px !important;
+}
+
+.subtitulo-pago {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.form-group-pago {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.form-group-pago label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.input-grupo-busqueda {
+  display: flex;
+  gap: 8px;
+}
+
+.input-grupo-busqueda input {
+  margin-bottom: 0 !important;
+}
+
+.input-grupo-busqueda button {
+  height: 44px;
+  padding: 0 15px;
+}
+
+.titulo-resumen {
+  margin-top: 0;
+  font-size: 16px;
+  color: #2c3e50;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* Ocultar elementos */
+.hidden {
+  display: none !important;
+}

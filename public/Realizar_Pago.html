@@ -8,6 +8,7 @@
 </head>
 <body>
 
+    <!-- Encabezado con Logo Oficial Brocash -->
     <header class="header">
         <div class="encabezado">
             <img src="Logos/Logo.png" class="logo" alt="Brocash Logo">
@@ -15,46 +16,48 @@
         </div>
     </header>
 
-    <div class="container-pago">
-        <h2>Abonar a mi Crédito</h2>
-        <p>Ingresa tu número de radicado para consultar tu saldo y realizar un abono en línea.</p>
+    <div class="container">
+        <div class="form-card card-pago">
+            <h2>Abonar a mi Crédito</h2>
+            <p class="subtitulo-pago">Ingresa tu número de radicado para consultar tu saldo y realizar un abono en línea.</p>
 
-        <!-- 1. BÚSQUEDA DE CRÉDITO -->
-        <div class="form-group">
-            <label for="idCredito">Número de Crédito (ID Radicado):</label>
-            <div class="input-grupo-busqueda">
-                <input type="number" id="idCredito" placeholder="Ej: 20261406" required>
-                <button type="button" class="btn-crud btn-aprobar btn-no-wrap" onclick="consultarCredito()">Consultar</button>
+            <!-- 1. BÚSQUEDA DE CRÉDITO -->
+            <div class="form-group-pago">
+                <label for="idCredito">Número de Crédito (ID Radicado):</label>
+                <div class="input-grupo-busqueda">
+                    <input type="number" id="idCredito" placeholder="Ej: 20261406" required>
+                    <button type="button" class="btn-crud btn-aprobar" onclick="consultarCredito()">Consultar</button>
+                </div>
             </div>
+
+            <!-- 2. RESUMEN DEL CRÉDITO (Oculto por defecto con CSS) -->
+            <div id="seccionResumen" class="info-credito-login hidden">
+                <h3 class="titulo-resumen">Resumen del Crédito</h3>
+                <p><strong>Cliente:</strong> <span id="lblCliente">-</span></p>
+                <p><strong>Monto Total Aprobado:</strong> $<span id="lblMontoOriginal">0</span></p>
+                <p><strong>Estado:</strong> <span id="lblEstado" class="badge-login">-</span></p>
+            </div>
+
+            <!-- 3. FORMULARIO DE REGISTRO DE PAGO (Oculto por defecto) -->
+            <form id="formPago" class="hidden" onsubmit="procesarPago(event)">
+                <div class="form-group-pago">
+                    <label for="montoAbono">Monto a Abonar ($):</label>
+                    <input type="number" id="montoAbono" min="1000" step="100" placeholder="Ej: 50000" required>
+                </div>
+
+                <div class="form-group-pago">
+                    <label for="metodoPago">Método de Pago:</label>
+                    <select id="metodoPago" required>
+                        <option value="" disabled selected>-- Selecciona un método --</option>
+                        <option value="PSE / Débito Bancario">PSE / Débito Bancario</option>
+                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                        <option value="Transferencia Débito Brocash">Saldo en Cuenta Brocash</option>
+                    </select>
+                </div>
+
+                <button type="submit">💳 Confirmar y Pagar</button>
+            </form>
         </div>
-
-        <!-- 2. RESUMEN DEL CRÉDITO -->
-        <div id="seccionResumen" class="card-resumen hidden">
-            <h3 class="titulo-resumen">Resumen del Crédito</h3>
-            <p><strong>Cliente:</strong> <span id="lblCliente">-</span></p>
-            <p><strong>Monto Total Aprobado:</strong> $<span id="lblMontoOriginal">0</span></p>
-            <p><strong>Estado:</strong> <span id="lblEstado" class="texto-negrita">-</span></p>
-        </div>
-
-        <!-- 3. FORMULARIO DE REGISTRO DE PAGO -->
-        <form id="formPago" class="hidden" onsubmit="procesarPago(event)">
-            <div class="form-group">
-                <label for="montoAbono">Monto a Abonar ($):</label>
-                <input type="number" id="montoAbono" min="1000" step="100" placeholder="Ej: 50000" required>
-            </div>
-
-            <div class="form-group">
-                <label for="metodoPago">Método de Pago:</label>
-                <select id="metodoPago" required>
-                    <option value="" disabled selected>-- Selecciona un método --</option>
-                    <option value="PSE">PSE</option>
-                    <option value="Tarjeta Débito">Tarjeta Débito</option>
-                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-pago">💳 Confirmar y Pagar</button>
-        </form>
     </div>
 
     <script>
@@ -62,7 +65,7 @@
             const idCredito = document.getElementById('idCredito').value;
 
             if (!idCredito) {
-                alert("Por favor ingrese un número de crédito válido.");
+                alert("Por favor ingresa un número de crédito válido.");
                 return;
             }
 
@@ -78,7 +81,10 @@
 
                     document.getElementById('lblCliente').textContent = data.cliente || 'Usuario Brocash';
                     document.getElementById('lblMontoOriginal').textContent = Number(data.montoSolicitado).toLocaleString('es-CO');
-                    document.getElementById('lblEstado').textContent = data.estado;
+                    
+                    const elEstado = document.getElementById('lblEstado');
+                    elEstado.textContent = data.estado;
+                    elEstado.className = `badge-login ${data.estado}`;
 
                     if (String(data.estado).toLowerCase() !== 'aprobado') {
                         alert("⚠️ Únicamente los créditos en estado 'Aprobado' pueden recibir abonos.");
