@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brocash - Realizar Pago</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="encabezado">
+            <img src="Logos/Logo.png" class="logo" alt="Brocash Logo">
+            <h1>Pasarela de Pagos Brocash</h1>
+        </div>
+    </header>
+
+    <div class="container-pago">
+        <h2>Abonar a mi Crédito</h2>
+        <p>Ingresa tu número de radicado para consultar tu saldo y realizar un abono en línea.</p>
+
+        <!-- 1. BÚSQUEDA DE CRÉDITO -->
+        <div class="form-group">
+            <label for="idCredito">Número de Crédito (ID Radicado):</label>
+            <div class="input-grupo-busqueda">
+                <input type="number" id="idCredito" placeholder="Ej: 20261406" required>
+                <button type="button" class="btn-crud btn-aprobar btn-no-wrap" onclick="consultarCredito()">Consultar</button>
+            </div>
+        </div>
+        
