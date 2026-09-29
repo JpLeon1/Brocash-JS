@@ -94,4 +94,39 @@
                     alert("Ocurrió un error al consultar el número de crédito.");
                 });
         }
-        
+
+        function procesarPago(event) {
+            event.preventDefault();
+
+            const idCredito = document.getElementById('idCredito').value;
+            const monto = document.getElementById('montoAbono').value;
+            const metodo = document.getElementById('metodoPago').value;
+
+            if (confirm(`¿Confirmas el abono de $${Number(monto).toLocaleString('es-CO')} mediante ${metodo}?`)) {
+                fetch('/registrar-pago', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        idCredito: Number(idCredito),
+                        monto: Number(monto),
+                        metodo: metodo
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert(`🎉 ¡Pago N° ${data.idPago} registrado exitosamente!\nSe ha enviado un comprobante a tu correo electrónico.`);
+                        location.reload();
+                    } else {
+                        alert("❌ Error al procesar el pago: " + data.mensaje);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al registrar el pago:", err);
+                    alert("Ocurrió un error al conectar con el servidor de pagos.");
+                });
+            }
+        }
+    </script>
+</body>
+</html>
