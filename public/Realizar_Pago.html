@@ -56,3 +56,42 @@
             <button type="submit" class="btn-pago">💳 Confirmar y Pagar</button>
         </form>
     </div>
+
+    <script>
+        function consultarCredito() {
+            const idCredito = document.getElementById('idCredito').value;
+
+            if (!idCredito) {
+                alert("Por favor ingrese un número de crédito válido.");
+                return;
+            }
+
+            fetch(`/estado-credito-id/${idCredito}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.ok) {
+                        alert(data.mensaje || "No se encontró el crédito indicado.");
+                        document.getElementById('seccionResumen').classList.add('hidden');
+                        document.getElementById('formPago').classList.add('hidden');
+                        return;
+                    }
+
+                    document.getElementById('lblCliente').textContent = data.cliente || 'Usuario Brocash';
+                    document.getElementById('lblMontoOriginal').textContent = Number(data.montoSolicitado).toLocaleString('es-CO');
+                    document.getElementById('lblEstado').textContent = data.estado;
+
+                    if (String(data.estado).toLowerCase() !== 'aprobado') {
+                        alert("⚠️ Únicamente los créditos en estado 'Aprobado' pueden recibir abonos.");
+                        document.getElementById('formPago').classList.add('hidden');
+                    } else {
+                        document.getElementById('formPago').classList.remove('hidden');
+                    }
+
+                    document.getElementById('seccionResumen').classList.remove('hidden');
+                })
+                .catch(err => {
+                    console.error("Error al consultar crédito:", err);
+                    alert("Ocurrió un error al consultar el número de crédito.");
+                });
+        }
+        
