@@ -50,3 +50,33 @@ function enviarCorreoPago(emailDestino, nombreCliente, idPago, montoPagado, idCr
     });
 }
 
+// Consultar información del crédito Aprobado para la vista Realizar_Pago.html //
+exports.obtenerEstadoPorId = (req, res) => {
+    const { id } = req.params;
+
+    const query = `
+        SELECT C.ID_CREDITO, C.ESTADO, C.MONTO_SOLICITADO, RU.NOMBRE 
+        FROM CREDITO C 
+        JOIN REGISTRO_USUARIO RU ON C.ID_USUARIO = RU.ID_USUARIO 
+        WHERE C.ID_CREDITO = ?`;
+
+    db.query(query, [id], (err, resultados) => {
+        if (err) {
+            console.error('❌ Error al consultar crédito por ID:', err);
+            return res.status(500).json({ ok: false, mensaje: 'Error interno del servidor' });
+        }
+
+        if (resultados.length === 0) {
+            return res.status(404).json({ ok: false, mensaje: 'No se encontró un crédito con el número ingresado' });
+        }
+
+        const credito = resultados[0];
+        res.status(200).json({
+            ok: true,
+            idCredito: credito.ID_CREDITO,
+            estado: credito.ESTADO,
+            montoSolicitado: credito.MONTO_SOLICITADO,
+            cliente: credito.NOMBRE
+        });
+    });
+};
