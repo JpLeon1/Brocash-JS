@@ -31,7 +31,28 @@ const Usuario = {
     actualizarPassword: (cedula, nuevaPassword, callback) => {
         const query = "UPDATE REGISTRO_USUARIO SET PASSWORD = ? WHERE ID_USUARIO = ?";
         db.query(query, [nuevaPassword, cedula], callback);
+    },
+    // Actualizar datos desde el perfil
+     actualizarDatosPerfil: (idUsuario, nuevosDatos, callback) => {
+        const query = `
+            UPDATE REGISTRO_USUARIO 
+            SET NOMBRE = ?, APELLIDO = ?, EMAIL = ?, TELEFONO = ? 
+            WHERE ID_USUARIO = ?
+        `;
+        
+        db.query(
+            query, 
+            [
+                nuevosDatos.Nombre, 
+                nuevosDatos.Apellido, 
+                nuevosDatos.email, 
+                nuevosDatos.telefono, 
+                idUsuario
+            ], 
+            callback
+        );
     }
 };
 
 module.exports = Usuario;
+    
