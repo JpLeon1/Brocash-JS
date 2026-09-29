@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brocash - Recuperar contraseña</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+
+<body>
+<header class="header">
+    <div class="encabezado">
+        <img src="Logos/Logo.png" class="logo" alt="Logo Brocash">
+        <h1>Brocash</h1>
+    </div>
+</header>
+
+<div class="container">
+    <form class="form-card" id="form-recuperar">
+        <h2>Recuperar contraseña</h2>
+        <p>Ingresa tu cédula y el correo con el que te registraste para crear una nueva contraseña.</p>
+
+        <input type="number" id="cedula" name="Cedula" placeholder="Cédula" required>
+        <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" id="nuevaPassword" name="nuevaPassword" placeholder="Nueva contraseña (mín. 6 caracteres)" minlength="6" required>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repite la nueva contraseña" minlength="6" required>
+
+        <button type="submit">Cambiar contraseña</button>
+
+        <div class="links">
+            <a href="Pagina_Principal.html">Volver al inicio de sesión</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("form-recuperar").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const cedula = document.getElementById("cedula").value;
+        const email = document.getElementById("email").value.trim();
+        const nuevaPassword = document.getElementById("nuevaPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (nuevaPassword !== confirmPassword) {
+            alert("❌ Las contraseñas no coinciden");
+            return;
+        }
+
+        fetch("/recuperar-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ Cedula: cedula, email: email, nuevaPassword: nuevaPassword, confirmPassword: confirmPassword })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                alert("✅ " + data.mensaje + ". Ya puedes iniciar sesión.");
+                window.location.href = "Pagina_Principal.html";
+            } else {
+                alert("❌ " + (data.mensaje || "No se pudo cambiar la contraseña"));
+            }
+        })
+        .catch(err => {
+            console.error("❌ Error en la recuperación de contraseña:", err);
+            alert("Error al conectar con el servidor.");
+        });
+    });
+</script>
+
+</body>
+</html>

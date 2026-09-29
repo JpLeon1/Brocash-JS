@@ -1,22 +1,25 @@
 // config/db.js
 const mysql = require('mysql2');
 
-// Conexión con tus datos locales de MySQL
-const connection = mysql.createConnection({
+// Pool de conexiones: se reconecta solo si MySQL cierra alguna conexión
+const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'Brocash'
+    database: 'Brocash',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Conexion a la base de datos 
-connection.connect((err) => {
+// Prueba de conexión al arrancar
+pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error al conectar a la base de datos MySQL:', err);
         return;
     }
     console.log('¡Conectado con éxito a la base de datos MySQL Brocash desde la configuración MVC! 🛢️');
+    connection.release();
 });
 
-// Exportamos la conexión para que los Modelos la puedan usar más adelante
-module.exports = connection;
+module.exports = pool;
