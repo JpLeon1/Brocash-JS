@@ -80,3 +80,43 @@ exports.obtenerEstadoPorId = (req, res) => {
         });
     });
 };
+
+//Registrar pago del cliente e en la tabla PAGO
+exports.registrarPago = (req, res) => {
+    const { idCredito, monto, metodo } = req.body;
+
+    if (!idCredito || !monto || !metodo) {
+        return res.status(400).json({ ok: false, mensaje: 'Faltan datos requeridos (idCredito, monto, metodo).' });
+    }
+
+    const sqlInsert = "INSERT INTO PAGO (ID_CREDITO, FECHA, MONTO, METODO) VALUES (?, CURDATE(), ?, ?)";
+
+    db.query(sqlInsert, [idCredito, monto, metodo], (errInsert, resultInsert) => {
+        if (errInsert) {
+            console.error('❌ Error al guardar en la tabla PAGO:', errInsert);
+            return res.status(500).json({ ok: false, mensaje: 'Error al registrar el pago en la base de datos' });
+        }
+
+        const idPago = resultInsert.insertId;
+        console.log(`✅ Pago N° ${idPago} registrado exitosamente para el crédito N° ${idCredito}`);
+
+        // Obtener el correo del usuario para enviarle el comprobante
+        const sqlBuscarCliente = `
+            SELECT RU.EMAIL, RU.NOMBRE 
+            FROM CREDITO C 
+            JOIN REGISTRO_USUARIO RU ON C.ID_USUARIO = RU.ID_USUARIO 
+            WHERE C.ID_CREDITO = ?`;
+
+        db.query(sqlBuscarCliente, [idCredito], (errCliente, filas) => {
+            if (!errCliente && filas.length > 0) {
+                enviarCorreoPago(filas[0].EMAIL, filas[0].NOMBRE, idPago, monto, idCredito);
+            }
+
+            return res.status(200).json({
+                ok: true,
+                mensaje: 'Pago registrado con éxito y comprobante despachado al correo',
+                idPago
+            });
+        });
+    });
+};
