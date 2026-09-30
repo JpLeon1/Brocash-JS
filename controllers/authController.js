@@ -257,9 +257,12 @@ exports.recuperarPassword = (req, res) => {
                         ok: true,
                         mensaje:
                             'Contraseña actualizada correctamente'
-                        }
                     });
-                };
+                }
+            );
+        }
+    );
+};
 
     
    // 🔄 NUEVA LÓGICA: ACTUALIZAR EL PERFIL DE USUARIO
@@ -295,6 +298,6 @@ exports.actualizarPerfil = (req, res) => {
         return res.status(200).json({ mensaje: "¡Perfil actualizado con éxito!" });
     });
 };
-     
+
     
             
