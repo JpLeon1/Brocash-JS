@@ -75,7 +75,8 @@ exports.obtenerEstadoPorId = (req, res) => {
             ok: true,
             idCredito: credito.ID_CREDITO,
             estado: credito.ESTADO,
-            montoSolicitado: credito.MONTO_SOLICITADO,
+            montoSolicitado: credito.MONTO || credito.MONTO_SOLICITADO || 0,
+            cuotas: credito.CUOTAS || credito.PLAZO || 'N/A',
             cliente: credito.NOMBRE
         });
     });

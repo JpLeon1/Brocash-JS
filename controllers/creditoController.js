@@ -10,11 +10,11 @@ const transporter = nodemailer.createTransport({
     secure: true,
     auth: {
         user: 'juanpabloleonpineda@gmail.com', // Correo remitente
-        pass: 'gqkymptfdzfwdded'               // Clave de aplicación de Google (sin espacios)
+        pass: 'gqkymptfdzfwdded'               // Clave de aplicación de Google
     }
 });
 
-// FUNCIÓN HELPER PARA ENVIAR CORREO HTML CON ESTILOS
+// FUNCIÓN HELPER PARA ENVIAR CORREO HTML
 function enviarCorreoNotificacion(emailDestino, nombreCliente, estado, idCredito) {
     const esAprobado = String(estado).toLowerCase() === 'aprobado';
     const colorEstado = esAprobado ? '#2ecc71' : '#e74c3c';
@@ -24,20 +24,20 @@ function enviarCorreoNotificacion(emailDestino, nombreCliente, estado, idCredito
 
     const plantillaHtml = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 20px;">
-            <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; border-top: 5px solid ${colorEstado}; shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; border-top: 5px solid ${colorEstado};">
                 <h2 style="color: #2ecc71; margin-top: 0; font-size: 24px;">Brocash</h2>
                 <p style="color: #333333; font-size: 16px;">Hola <strong>${nombreCliente}</strong>,</p>
                 <p style="color: #555555; font-size: 14px;">Te informamos que el estado de tu solicitud de crédito N° <strong>${idCredito}</strong> ha sido actualizado a:</p>
                 
                 <div style="text-align: center; margin: 25px 0;">
-                    <span style="background-color: ${colorEstado}; color: #ffffff; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block; letter-spacing: 1px;">
+                    <span style="background-color: ${colorEstado}; color: #ffffff; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block;">
                         ${String(estado).toUpperCase()}
                     </span>
                 </div>
 
-                <p style="color: #555555; font-size: 14px;">Puedes ingresar a la plataforma para consultar el detalle de tu cuenta.</p>
+                <p style="color: #555555; font-size: 14px;">Puedes ingresar a la plataforma para consultar el detalle de tu cuenta y plan de pagos.</p>
                 <hr style="border: none; border-top: 1px solid #eeeeee; margin: 25px 0;">
-                <p style="font-size: 12px; color: #888888; text-align: center; margin: 0;">© 2026 Brocash. Este es un mensaje automático, por favor no respondas a este correo.</p>
+                <p style="font-size: 12px; color: #888888; text-align: center; margin: 0;">© 2026 Brocash. Este es un mensaje automático.</p>
             </div>
         </div>
     `;
@@ -63,7 +63,7 @@ const esJSON = (req) => req.is('application/json');
 
 // 1. Método CREATE: Procesar la Solicitud de Crédito
 exports.procesarSolicitud = (req, res) => {
-    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, montoSolicitado } = req.body;
+    const { Nombre, Cedula, email, ocupacion, telefono, ingresos_mensuales, montoSolicitado, plazoMeses } = req.body;
     const fechaSolicitud = req.body.fechaSolicitud && req.body.fechaSolicitud.trim() !== ''
         ? req.body.fechaSolicitud
         : new Date().toISOString().slice(0, 10);
@@ -105,6 +105,7 @@ exports.procesarSolicitud = (req, res) => {
             idAnalista,
             ingresos: Number(ingresos_mensuales),
             montoSolicitado: Number(montoSolicitado),
+            plazoMeses: Number(plazoMeses) || 12, // Valor por defecto en 12 meses si no se envía
             estado,
             Nombre,
             email,
@@ -146,6 +147,7 @@ exports.procesarSolicitud = (req, res) => {
                         Cedula: Number(Cedula),
                         estado,
                         montoSolicitado: Number(montoSolicitado),
+                        plazoMeses: nuevosDatos.plazoMeses,
                         fechaSolicitud
                     }
                 });
@@ -176,9 +178,8 @@ exports.listarCreditos = (req, res) => {
     });
 };
 
-// 3. Método UPDATE: Modificar el estado de un crédito, notificar por correo y desembolsar si es aprobado
+// 3. Método UPDATE: Modificar el estado de un crédito, notificar por correo, desembolsar y GENERAR PLAN DE CUOTAS
 exports.modificarEstado = (req, res) => {
-    // Sincronización de nomenclatura: Acepta tanto id_credito (frontend) como idCredito
     const idCredito = req.body.id_credito || req.body.idCredito;
     const nuevoEstado = req.body.nuevo_estado || req.body.nuevoEstado;
 
@@ -214,20 +215,22 @@ exports.modificarEstado = (req, res) => {
                 enviarCorreoNotificacion(clienteInfo.EMAIL, clienteInfo.NOMBRE, nuevoEstado, idCredito);
             }
 
-            // D. Lógica de desembolso si es Aprobado
+            // D. Lógica de desembolso y generación del plan de cuotas si es Aprobado
             if (String(nuevoEstado).toLowerCase() === 'aprobado') {
-                const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO FROM CREDITO WHERE ID_CREDITO = ?";
+                const queryBuscarCredito = "SELECT ID_USUARIO, MONTO_SOLICITADO, PLAZO_MESES FROM CREDITO WHERE ID_CREDITO = ?";
 
                 db.query(queryBuscarCredito, [idCredito], (errBusqueda, filas) => {
                     if (errBusqueda || filas.length === 0) {
                         console.error('❌ Error al buscar datos del crédito para desembolso:', errBusqueda);
-                        return res.status(200).json({ ok: true, mensaje: `Crédito N° ${idCredito} aprobado y notificado, pero falló el desembolso.` });
+                        return res.status(200).json({ ok: true, mensaje: `Crédito N° ${idCredito} aprobado y notificado, pero falló la búsqueda para desembolso.` });
                     }
 
                     const registro = filas[0];
-                    const idUsuario = registro.ID_USUARIO || registro.id_usuario || registro.IdUsuario;
-                    const montoSolicitado = registro.MONTO_SOLICITADO || registro.monto_solicitado || registro.MontoSolicitado;
+                    const idUsuario = registro.ID_USUARIO || registro.id_usuario;
+                    const montoSolicitado = Number(registro.MONTO_SOLICITADO || registro.monto_solicitado);
+                    const plazoMeses = Number(registro.PLAZO_MESES || registro.plazo_meses) || 12;
 
+                    // 1. Ejecutar Desembolso de dinero
                     Credito.desembolsarDinero(idUsuario, montoSolicitado, (errDesembolso) => {
                         if (errDesembolso) {
                             console.error(`❌ Error al asignar dinero al usuario ${idUsuario}:`, errDesembolso);
@@ -235,12 +238,46 @@ exports.modificarEstado = (req, res) => {
                             console.log(`💵 ¡DESEMBOLSO EXITOSO! Se cargaron $${montoSolicitado} al saldo del usuario ${idUsuario}`);
                         }
 
-                        return res.status(200).json({
-                            ok: true,
-                            mensaje: `El estado del crédito N° ${idCredito} cambió a 'Aprobado', se notificó al correo y se realizó el desembolso.`,
-                            idCredito,
-                            nuevoEstado
-                        });
+                        // 2. Generar el Plan de Cuotas en la tabla CUOTAS
+                        const montoCuota = (montoSolicitado / plazoMeses).toFixed(2);
+                        const queriesCuotas = [];
+
+                        for (let i = 1; i <= plazoMeses; i++) {
+                            const fechaVencimiento = new Date();
+                            fechaVencimiento.setMonth(fechaVencimiento.getMonth() + i);
+
+                            const insertCuotaQuery = `
+                                INSERT INTO CUOTAS (ID_CREDITO, NUMERO_CUOTA, MONTO_CUOTA, FECHA_VENCIMIENTO, ESTADO_CUOTA)
+                                VALUES (?, ?, ?, ?, 'Pendiente')`;
+
+                            queriesCuotas.push(new Promise((resolve, reject) => {
+                                db.query(insertCuotaQuery, [idCredito, i, montoCuota, fechaVencimiento], (errCuota) => {
+                                    if (errCuota) reject(errCuota);
+                                    else resolve();
+                                });
+                            }));
+                        }
+
+                        Promise.all(queriesCuotas)
+                            .then(() => {
+                                console.log(`📅 Plan de cuotas generado con éxito (${plazoMeses} cuotas de $${montoCuota}).`);
+                                return res.status(200).json({
+                                    ok: true,
+                                    mensaje: `El estado del crédito N° ${idCredito} cambió a 'Aprobado', se notificó por correo, se realizó el desembolso y se generaron las cuotas.`,
+                                    idCredito,
+                                    nuevoEstado,
+                                    totalCuotasGeneradas: plazoMeses
+                                });
+                            })
+                            .catch((errPlanCuotas) => {
+                                console.error('❌ Error al insertar el plan de cuotas:', errPlanCuotas);
+                                return res.status(200).json({
+                                    ok: true,
+                                    mensaje: `Crédito N° ${idCredito} aprobado y desembolsado, pero hubo un inconveniente al generar la tabla de cuotas.`,
+                                    idCredito,
+                                    nuevoEstado
+                                });
+                            });
                     });
                 });
             } else {
@@ -264,30 +301,62 @@ exports.borrarCredito = (req, res) => {
             console.error('❌ Error al eliminar crédito:', error);
             return res.status(500).json({ ok: false, mensaje: 'Error interno al eliminar el crédito' });
         }
-        console.log(`🗑️ Crédito N° ${idCredito} eliminado con éxito de MySQL`);
+        console.log(`🗑️️ Crédito N° ${idCredito} eliminado con éxito de MySQL`);
         return res.status(200).json({ ok: true, mensaje: 'Crédito eliminado correctamente', idCredito });
     });
 };
 
-// 5. Método READ: para que el usuario pueda ver el estado del crédito por cédula
+// 5. Método READ: Consultar estado del crédito e historial de cuotas por cédula
 exports.obtenerEstadoUsuario = (req, res) => {
     const { cedula } = req.params;
 
-    Credito.buscarPorCedula(Number(cedula), (error, filas) => {
+    const queryEstadoConCuotas = `
+        SELECT 
+            C.ID_CREDITO,
+            C.ESTADO,
+            C.MONTO_SOLICITADO,
+            C.PLAZO_MESES,
+            Q.ID_CUOTA,
+            Q.NUMERO_CUOTA,
+            Q.MONTO_CUOTA,
+            Q.FECHA_VENCIMIENTO,
+            Q.ESTADO_CUOTA,
+            Q.FECHA_PAGO
+        FROM CREDITO C
+        JOIN REGISTRO_USUARIO RU ON C.ID_USUARIO = RU.ID_USUARIO
+        LEFT JOIN CUOTAS Q ON C.ID_CREDITO = Q.ID_CREDITO
+        WHERE RU.CEDULA = ?
+        ORDER BY C.ID_CREDITO DESC, Q.NUMERO_CUOTA ASC`;
+
+    db.query(queryEstadoConCuotas, [Number(cedula)], (error, filas) => {
         if (error) {
             console.error('❌ Error al buscar crédito del usuario:', error);
-            return res.status(500).json({ ok: false, mensaje: 'Error interno' });
+            return res.status(500).json({ ok: false, mensaje: 'Error interno al obtener el estado' });
         }
 
         if (filas.length === 0) {
             return res.status(200).json({ tieneCredito: false, mensaje: 'No se encontró una solicitud de crédito para la cédula indicada' });
         }
 
+        const primerRegistro = filas[0];
+        const cuotas = filas
+            .filter(row => row.ID_CUOTA !== null)
+            .map(row => ({
+                idCuota: row.ID_CUOTA,
+                numeroCuota: row.NUMERO_CUOTA,
+                montoCuota: row.MONTO_CUOTA,
+                fechaVencimiento: row.FECHA_VENCIMIENTO,
+                estadoCuota: row.ESTADO_CUOTA,
+                fechaPago: row.FECHA_PAGO
+            }));
+
         res.status(200).json({
             tieneCredito: true,
-            idCredito: filas[0].ID_CREDITO,
-            estado: filas[0].ESTADO,
-            montoSolicitado: filas[0].MONTO_SOLICITADO
+            idCredito: primerRegistro.ID_CREDITO,
+            estado: primerRegistro.ESTADO,
+            montoSolicitado: primerRegistro.MONTO_SOLICITADO,
+            plazoMeses: primerRegistro.PLAZO_MESES,
+            cuotas
         });
     });
 };
