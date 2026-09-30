@@ -7,6 +7,7 @@ const db = require('./config/db.js'); // 🔌 Conexión real a MySQL
 // ==========================================
 const authController = require('./controllers/authController');
 const creditoController = require('./controllers/creditoController');
+const pagoController = require('./controllers/pagoController');
 
 const app = express();
 
@@ -48,6 +49,12 @@ app.post('/borrar-credito', creditoController.borrarCredito);
 // Consultar estado por cédula del cliente
 app.get('/estado-credito/:cedula', creditoController.obtenerEstadoUsuario);
 
+
+// 5. RUTAS DE PAGOS
+app.get('/estado-credito-id/:id', pagoController.obtenerEstadoPorId);
+app.post('/registrar-pago', pagoController.registrarPago);
+ 
+
 // ==========================================
 // 5. MIDDLEWARE DE REGISTRO / MANEJO DE RUTAS NO ENCONTRADAS (404)
 // ==========================================
@@ -55,15 +62,6 @@ app.use((req, res) => {
     console.log(`⚠️ Ruta no encontrada (404): ${req.method} ${req.url}`);
     res.status(404).json({ ok: false, mensaje: `La ruta ${req.method} ${req.url} no existe en el servidor.` });
 });
-
-
-// IMPORTAR EL CONTROLADOR DE PAGOS
-const pagoController = require('./controllers/pagoController');
-
-// 4. RUTAS DE PAGOS
-app.get('/estado-credito-id/:id', pagoController.obtenerEstadoPorId);
-app.post('/registrar-pago', pagoController.registrarPago);
-
 
 // ==========================================
 // 6. ARRANQUE DEL SERVIDOR
