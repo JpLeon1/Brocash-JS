@@ -56,6 +56,15 @@ app.use((req, res) => {
     res.status(404).json({ ok: false, mensaje: `La ruta ${req.method} ${req.url} no existe en el servidor.` });
 });
 
+
+// IMPORTAR EL CONTROLADOR DE PAGOS
+const pagoController = require('./controllers/pagoController');
+
+// 4. RUTAS DE PAGOS
+app.get('/estado-credito-id/:id', pagoController.obtenerEstadoPorId);
+app.post('/registrar-pago', pagoController.registrarPago);
+
+
 // ==========================================
 // 6. ARRANQUE DEL SERVIDOR
 // ==========================================
@@ -66,9 +75,3 @@ app.listen(PORT, () => {
     console.log(`==================================================`);
 });
 
-// IMPORTAR EL CONTROLADOR DE PAGOS
-const pagoController = require('./controllers/pagoController');
-
-// 4. RUTAS DE PAGOS
-app.get('/estado-credito-id/:id', pagoController.obtenerEstadoPorId);
-app.post('/registrar-pago', pagoController.registrarPago);
