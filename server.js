@@ -65,3 +65,10 @@ app.listen(PORT, () => {
     console.log(`🚀 Servidor Brocash corriendo en http://localhost:${PORT}`);
     console.log(`==================================================`);
 });
+
+// IMPORTAR EL CONTROLADOR DE PAGOS
+const pagoController = require('./controllers/pagoController');
+
+// 4. RUTAS DE PAGOS
+app.get('/estado-credito-id/:id', pagoController.obtenerEstadoPorId);
+app.post('/registrar-pago', pagoController.registrarPago);
