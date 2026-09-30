@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/login', authController.login);
 app.post('/registrar', authController.registrar);
 app.post('/recuperar-password', authController.recuperarPassword);
+app.post('/ActualizarPerfilServlet', authController.actualizarPerfil);
 
 // ==========================================
 // 4. RUTAS DE CRÉDITOS (CRUD)
