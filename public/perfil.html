@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Brocash</title>
+    <!-- Vincula tus estilos globales compartidos en el proyecto -->
+    <link rel="stylesheet" href="Style.css"> 
+</head>
+<body>
+    <div class="main-container form-container" style="max-width: 500px; margin: 50px auto; padding: 20px; font-family: Arial, sans-serif;">
+        
+        <!-- SECCIÓN DEL LOGO DE BROCASH -->
+        <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+            <!-- Si tus compañeros guardaron el logo en otra carpeta como 'assets', solo cambia src="assets/logo.png" -->
+            <img src="img/logo.png" alt="Logo Brocash" style="max-width: 180px; height: auto;">
+        </div>
+
+        <h2 class="form-title" style="text-align: center;">Actualizar Mis Datos</h2>
+        
+        <form id="form-actualizar-perfil" class="form">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="Nombre" style="display:block; margin-bottom:5px; font-weight: bold;">Nombre:</label>
+                <input type="text" id="Nombre" name="Nombre" required class="form-input" style="width:100%; padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="Apellido" style="display:block; margin-bottom:5px; font-weight: bold;">Apellido:</label>
+                <input type="text" id="Apellido" name="Apellido" required class="form-input" style="width:100%; padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="email" style="display:block; margin-bottom:5px; font-weight: bold;">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" required class="form-input" style="width:100%; padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="telefono" style="display:block; margin-bottom:5px; font-weight: bold;">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" class="form-input" style="width:100%; padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <!-- Botón verde corporativo -->
+            <button type="submit" class="btn btn-submit" style="background-color: #2c8c4d !important; color: white !important; border: none; padding: 12px 15px; cursor: pointer; width: 100%; font-size: 16px; border-radius: 4px; font-weight: bold; transition: background 0.3s ease;">
+                Guardar Cambios
+            </button>
+        </form>
+    </div>
+</body>
+</html>
