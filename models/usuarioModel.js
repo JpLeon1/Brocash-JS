@@ -4,9 +4,9 @@ const db = require('../config/db');
 const Usuario = {
     // Función para buscar un usuario por su cédula
     buscarPorCedula: (cedula, callback) => {
-    const query = "SELECT ID_USUARIO, NOMBRE, EMAIL, PASSWORD, ROL FROM REGISTRO_USUARIO WHERE ID_USUARIO = ?";
-    db.query(query, [cedula], callback);
-},
+        const query = "SELECT ID_USUARIO, NOMBRE, EMAIL, PASSWORD, ROL FROM REGISTRO_USUARIO WHERE ID_USUARIO = ?";
+        db.query(query, [cedula], callback);
+    },
 
     crear: (datosUsuario, callback) => {
         const query = 'INSERT INTO REGISTRO_USUARIO (ID_USUARIO, NOMBRE, APELLIDO, EDAD, EMAIL, TELEFONO, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -19,8 +19,40 @@ const Usuario = {
             datosUsuario.telefono,
             datosUsuario.password
         ], callback);
+    },
+
+    // Verifica que la cédula y el correo pertenezcan a la misma cuenta (recuperar contraseña)
+    buscarPorCedulaYEmail: (cedula, email, callback) => {
+        const query = "SELECT ID_USUARIO, NOMBRE FROM REGISTRO_USUARIO WHERE ID_USUARIO = ? AND LOWER(EMAIL) = LOWER(?)";
+        db.query(query, [cedula, email], callback);
+    },
+
+    // Actualiza la contraseña del usuario
+    actualizarPassword: (cedula, nuevaPassword, callback) => {
+        const query = "UPDATE REGISTRO_USUARIO SET PASSWORD = ? WHERE ID_USUARIO = ?";
+        db.query(query, [nuevaPassword, cedula], callback);
+    },
+    // Actualizar datos desde el perfil
+     actualizarDatosPerfil: (idUsuario, nuevosDatos, callback) => {
+        const query = `
+            UPDATE REGISTRO_USUARIO 
+            SET NOMBRE = ?, APELLIDO = ?, EMAIL = ?, TELEFONO = ? 
+            WHERE ID_USUARIO = ?
+        `;
+        
+        db.query(
+            query, 
+            [
+                nuevosDatos.Nombre, 
+                nuevosDatos.Apellido, 
+                nuevosDatos.email, 
+                nuevosDatos.telefono, 
+                idUsuario
+            ], 
+            callback
+        );
     }
 };
 
 module.exports = Usuario;
-module.exports = Usuario;
+    

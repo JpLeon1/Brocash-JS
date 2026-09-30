@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS brocash;
+CREATE DATABASE brocash;
 USE brocash;
 
 -- 1. TABLA REGISTRO_USUARIO (Se agrega el campo para permitir el ingreso tanto de usuarios como analistas )
