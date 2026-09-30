@@ -257,9 +257,44 @@ exports.recuperarPassword = (req, res) => {
                         ok: true,
                         mensaje:
                             'Contraseña actualizada correctamente'
+                        }
                     });
-                }
-            );
+                };
+
+    
+   // 🔄 NUEVA LÓGICA: ACTUALIZAR EL PERFIL DE USUARIO
+exports.actualizarPerfil = (req, res) => {
+    // Obtenemos la cédula guardada en la sesión del usuario logueado
+    const idUsuario = req.session ? req.session.cedula : null; 
+    
+    // Recibimos los nuevos datos desde el formulario de perfil
+    const { Nombre, Apellido, email, telefono } = req.body;
+
+    // 1. Validación de sesión activa
+    if (!idUsuario) {
+        return res.status(401).json({ error: "No autorizado. Por favor, inicia sesión nuevamente." });
+    }
+
+    // 2. Validación de campos obligatorios
+    if (!Nombre || !email) {
+        return res.status(400).json({ error: "El nombre y el correo electrónico son campos obligatorios." });
+    }
+
+    // 3. Llamado al modelo para actualizar en MySQL
+    Usuario.actualizarDatosPerfil(idUsuario, { Nombre, Apellido, email, telefono }, (err, resultado) => {
+        if (err) {
+            console.error("❌ Error en el controlador al intentar actualizar perfil:", err);
+            return res.status(500).json({ error: "Error interno en el servidor al intentar actualizar los datos." });
         }
-    );
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: "No se encontró el registro del usuario en el sistema." });
+        }
+
+        console.log(`✅ ¡Perfil de la CC ${idUsuario} actualizado correctamente!`);
+        return res.status(200).json({ mensaje: "¡Perfil actualizado con éxito!" });
+    });
 };
+     
+    
+            
