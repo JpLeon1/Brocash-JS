@@ -61,6 +61,17 @@
     </div>
 
     <script>
+        // 🔄 DETECTA AUTOMÁTICAMENTE EL ID PASADO DESDE EL LOGIN POR LA URL
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idCreditoUrl = urlParams.get('id');
+
+            if (idCreditoUrl) {
+                document.getElementById('idCredito').value = idCreditoUrl;
+                consultarCredito(); // Dispara la consulta automáticamente sin obligar al usuario a hacer clic
+            }
+        });
+
         function consultarCredito() {
             const idCredito = document.getElementById('idCredito').value;
 
