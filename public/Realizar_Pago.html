@@ -8,22 +8,23 @@
 </head>
 <body>
 
-    <!-- Encabezado con Logo Oficial Brocash -->
-   <header class="header">
-    <div class="encabezado" style="display: flex; justify: space-between; align-items: center; padding: 10px 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="Logos/Logo.png" class="logo" style="width: 40px;">
-            <h1 style="margin: 0;">Brocash</h1>
+    <!-- Encabezado con Logo Oficial y Navegación Brocash -->
+    <header class="header">
+        <div class="encabezado" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="Logos/Logo.png" class="logo" style="width: 40px;">
+                <h1 style="margin: 0;">Brocash</h1>
+            </div>
+            
+            <!-- Botones de navegación -->
+            <nav class="nav-links" style="display: flex; gap: 15px; align-items: center;">
+                <a href="Pagina_Principal.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Inicio</a>
+                <a href="Solicitud_de_credito.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Solicitar Crédito</a>
+                <button onclick="cerrarSesion()" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Cerrar Sesión</button>
+            </nav>
         </div>
-        
-        <!-- Botones de navegación -->
-        <nav class="nav-links" style="display: flex; gap: 15px;">
-            <a href="Pagina_Principal.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Inicio</a>
-            <a href="Solicitud_de_credito.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Solicitar Crédito</a>
-            <button onclick="cerrarSesion()" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Cerrar Sesión</button>
-        </nav>
-    </div>
-</header>
+    </header>
+
     <div class="container">
         <div class="form-card card-pago">
             <h2>Abonar a mi Crédito</h2>
@@ -76,86 +77,4 @@
 
             if (idCreditoUrl) {
                 document.getElementById('idCredito').value = idCreditoUrl;
-                consultarCredito(); // Dispara la consulta automáticamente sin obligar al usuario a hacer clic
-            }
-        });
-
-        function consultarCredito() {
-            const idCredito = document.getElementById('idCredito').value;
-
-            if (!idCredito) {
-                alert("Por favor ingresa un número de crédito válido.");
-                return;
-            }
-
-            fetch(`/estado-credito-id/${idCredito}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.ok) {
-                        alert(data.mensaje || "No se encontró el crédito indicado.");
-                        document.getElementById('seccionResumen').classList.add('hidden');
-                        document.getElementById('formPago').classList.add('hidden');
-                        return;
-                    }
-
-                    document.getElementById('lblCliente').textContent = data.cliente || 'Usuario Brocash';
-                    document.getElementById('lblMontoOriginal').textContent = Number(data.montoSolicitado).toLocaleString('es-CO');
-                    
-                    const elEstado = document.getElementById('lblEstado');
-                    elEstado.textContent = data.estado;
-                    elEstado.className = `badge-login ${data.estado}`;
-
-                    if (String(data.estado).toLowerCase() !== 'aprobado') {
-                        alert("⚠️ Únicamente los créditos en estado 'Aprobado' pueden recibir abonos.");
-                        document.getElementById('formPago').classList.add('hidden');
-                    } else {
-                        document.getElementById('formPago').classList.remove('hidden');
-                    }
-
-                    document.getElementById('seccionResumen').classList.remove('hidden');
-                })
-                .catch(err => {
-                    console.error("Error al consultar crédito:", err);
-                    alert("Ocurrió un error al consultar el número de crédito.");
-                });
-        }
-
-        function procesarPago(event) {
-            event.preventDefault();
-
-            const idCredito = document.getElementById('idCredito').value;
-            const monto = document.getElementById('montoAbono').value;
-            const metodo = document.getElementById('metodoPago').value;
-
-            if (confirm(`¿Confirmas el abono de $${Number(monto).toLocaleString('es-CO')} mediante ${metodo}?`)) {
-                fetch('/registrar-pago', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        idCredito: Number(idCredito),
-                        monto: Number(monto),
-                        metodo: metodo
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        alert(`🎉 ¡Pago N° ${data.idPago} registrado exitosamente!\nSe ha enviado un comprobante a tu correo electrónico.`);
-                        location.reload();
-                    } else {
-                        alert("❌ Error al procesar el pago: " + data.mensaje);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error al registrar el pago:", err);
-                    alert("Ocurrió un error al conectar con el servidor de pagos.");
-                });
-            }
-        }
-        function cerrarSesion() {
-    sessionStorage.clear();
-    window.location.href = "Pagina_Principal.html";
-}
-    </script>
-</body>
-</html>
+                consultarCredito(); // Dispara la consulta automáticamente
