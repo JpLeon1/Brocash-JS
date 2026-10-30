@@ -1,5 +1,4 @@
 const Usuario = require('../models/usuarioModel');
-
 // LÓGICA PARA EL LOGIN
 exports.login = (req, res) => {
     const { Cedula, password } = req.body;
@@ -10,20 +9,13 @@ exports.login = (req, res) => {
 
         if (error) {
             console.error('❌ Error en el modelo al consultar Login:', error);
-
             if (req.is('application/json')) {
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: 'Error del servidor al intentar iniciar sesión',
-                    error: error.code || 'DB_ERROR'
-                });
+                return res.status(500).json({ ok: false, mensaje: 'Error del servidor al intentar iniciar sesión' });
             }
-
             return res.redirect('/Pagina_Principal.html?error=servidor');
         }
 
         if (results.length > 0) {
-
             const usuarioEncontrado = results[0];
 
             // Validación de la contraseña
@@ -31,54 +23,73 @@ exports.login = (req, res) => {
 
                 console.log(`✅ Login exitoso. Bienvenido, ${usuarioEncontrado.NOMBRE}`);
 
-                // Se ajusta la ruta según el ROL guardado en la base de datos
-                const esAnalista = usuarioEncontrado.ROL === 'analista';
-
-                const rutaRedirect = esAnalista
-                    ? '/Vista_Analista.html'
-                    : '/Solicitud_de_credito.html';
-
-                if (req.is('application/json')) {
-                    return res.status(200).json({
-                        ok: true,
-                        mensaje: 'Login exitoso',
-                        redirect: rutaRedirect,
-                        usuario: {
-                            Cedula: usuarioEncontrado.ID_USUARIO,
-                            Nombre: usuarioEncontrado.NOMBRE,
-                            email: usuarioEncontrado.EMAIL,
-                            rol: usuarioEncontrado.ROL || 'cliente'
-                        }
-                    });
+                // 1. Si es Analista, redirigir a la vista de administración
+                if (usuarioEncontrado.ROL === 'analista') {
+                    const rutaAnalista = '/Vista_Analista.html';
+                    if (req.is('application/json')) {
+                        return res.status(200).json({
+                            ok: true,
+                            mensaje: 'Login exitoso',
+                            redirect: rutaAnalista,
+                            usuario: {
+                                Cedula: usuarioEncontrado.ID_USUARIO,
+                                Nombre: usuarioEncontrado.NOMBRE,
+                                email: usuarioEncontrado.EMAIL,
+                                rol: usuarioEncontrado.ROL
+                            }
+                        });
+                    }
+                    return res.redirect(rutaAnalista);  
                 }
+// 2. Si es Cliente, consultar su último crédito en MySQL
+const queryCredito = 'SELECT ID_CREDITO, ESTADO FROM credito WHERE ID_USUARIO = ? ORDER BY ID_CREDITO DESC LIMIT 1';
 
-                return res.redirect(rutaRedirect);
+db.query(queryCredito, [usuarioEncontrado.ID_USUARIO], (errCredito, creditos) => {
+    let rutaRedirect = '/Solicitud_de_credito.html'; // Por defecto si no ha hecho ninguna solicitud
+
+    if (!errCredito && creditos.length > 0) {
+        const ultimoCredito = creditos[0];
+        const estado = String(ultimoCredito.ESTADO).toLowerCase();
+
+        if (estado === 'aprobado') {
+            // Solo si está APROBADO va a la pasarela de pago
+            rutaRedirect = `/Realizar_Pago.html?id=${ultimoCredito.ID_CREDITO}`;
+        } else {
+            // Si está PENDIENTE o RECHAZADO, va a la consulta de estado
+            rutaRedirect = `/Estado_Credito.html?id=${ultimoCredito.ID_CREDITO}`;
+        }
+    }
+
+    if (req.is('application/json')) {
+        return res.status(200).json({
+            ok: true,
+            mensaje: 'Login exitoso',
+            redirect: rutaRedirect,
+            usuario: {
+                Cedula: usuarioEncontrado.ID_USUARIO,
+                Nombre: usuarioEncontrado.NOMBRE,
+                email: usuarioEncontrado.EMAIL,
+                rol: usuarioEncontrado.ROL || 'cliente'
+            }
+        });
+    }
+
+    return res.redirect(rutaRedirect);
+});
 
             } else {
-
                 console.log('❌ Login fallido: Contraseña incorrecta.');
-
                 if (req.is('application/json')) {
-                    return res.status(401).json({
-                        ok: false,
-                        mensaje: 'Contraseña incorrecta'
-                    });
+                    return res.status(401).json({ ok: false, mensaje: 'Contraseña incorrecta' });
                 }
-
                 return res.redirect('/Pagina_Principal.html?error=datos_incorrectos');
             }
 
         } else {
-
             console.log('❌ Login fallido: El usuario no existe.');
-
             if (req.is('application/json')) {
-                return res.status(404).json({
-                    ok: false,
-                    mensaje: 'El usuario no existe'
-                });
+                return res.status(404).json({ ok: false, mensaje: 'El usuario no existe' });
             }
-
             return res.redirect('/Pagina_Principal.html?error=usuario_no_existe');
         }
     });
