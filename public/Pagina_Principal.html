@@ -65,71 +65,38 @@
         }
     });
 
-    // 2. ENVIAR FORMULARIO DE LOGIN Y REDIRIGIR SEGÚN EL ESTADO DEL CRÉDITO
-    document.getElementById("form-login").addEventListener("submit", function(e) {
-        e.preventDefault();
+    // 2. ENVIAR FORMULARIO DE LOGIN Y REDIRIGIR USANDO LA RUTA DEL SERVIDOR
+document.getElementById("form-login").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-        const cedula = document.getElementById("login-cedula").value;
-        const password = document.getElementById("login-password").value;
+    const cedula = document.getElementById("login-cedula").value;
+    const password = document.getElementById("login-password").value;
 
-        fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({ Cedula: cedula, password: password })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) 
-{
-            // Guardar usuario en sesión
-                sessionStorage.setItem("usuarioLogueado", JSON.stringify(data.usuario));
+    fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({ Cedula: cedula, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok) {
+            // Guardar datos del usuario en sesión
+            sessionStorage.setItem("usuarioLogueado", JSON.stringify(data.usuario));
 
-                // A. Si el usuario es Analista, redirige a su panel especial
-                if (data.usuario && data.usuario.rol === 'analista') {
-                    window.location.href = "Vista_Analista.html";
-                    return;
-                }
-
-                // B. Si es Cliente, evaluar el estado de su crédito
-                fetch(`/estado-credito/${cedula}`)
-                    .then(resCredito => resCredito.json())
-                    .then(creditoData => {
-                        if (!creditoData.tieneCredito) {
-                            // Sin crédito activo -> Ir a formulario de solicitud
-                            window.location.href = "Solicitud_de_credito.html";
-                        } else {
-                            const estadoLower = String(creditoData.estado).toLowerCase();
-
-                            if (estadoLower === 'aprobado') {
-                                // CRÉDITO APROBADO -> Redirigir a Pasarela de Pagos con su ID cargado
-                                window.location.href = `Realizar_Pago.html?id=${creditoData.idCredito}`;
-                            } else if (estadoLower === 'pendiente') {
-                                // PENDIENTE -> Mostrar mensaje
-                                alert(`👋 Hola, tu solicitud de crédito N° ${creditoData.idCredito} está actualmente EN ESTUDIO por nuestros analistas.`);
-                                window.location.href = "Solicitud_de_credito.html";
-                            } else {
-                                // RECHAZADO -> Permitir radicar una nueva solicitud
-                                window.location.href = "Solicitud_de_credito.html";
-                            }
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Error al verificar crédito al ingresar:", err);
-                        window.location.href = "Solicitud_de_credito.html";
-                    });
-
-            } else {
-                alert("❌ " + (data.mensaje || "Datos de ingreso incorrectos"));
-            }
-        })
-        .catch(err => {
-            console.error("❌ Error en el proceso de login:", err);
-            alert("Error al conectar con el servidor.");
-        });
+            // 🚀 Redirección dinámica proporcionada directamente por authController.js
+            window.location.href = data.redirect;
+        } else {
+            alert("❌ " + (data.mensaje || "Datos de ingreso incorrectos"));
+        }
+    })
+    .catch(err => {
+        console.error("❌ Error en el proceso de login:", err);
+        alert("Error al conectar con el servidor.");
     });
+});
 </script>
 
 </body>
