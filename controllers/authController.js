@@ -1,4 +1,6 @@
+// controllers/authController.js
 const Usuario = require('../models/usuarioModel');
+const db = require('../config/db'); // 👈 AGREGAR ESTA LÍNEA AQUÍ
 // LÓGICA PARA EL LOGIN
 exports.login = (req, res) => {
     const { Cedula, password } = req.body;
