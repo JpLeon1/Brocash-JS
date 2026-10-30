@@ -62,6 +62,7 @@ exports.procesarSolicitud = (req, res) => {
         ? req.body.fechaSolicitud
         : new Date().toISOString().slice(0, 10);
 
+
     Credito.verificarPendiente(Number(Cedula), (errorVerificacion, filas) => {
         if (errorVerificacion) {
             if (esJSON(req)) return res.status(500).json({ ok: false, mensaje: 'Error al validar la solicitud' });
@@ -94,31 +95,40 @@ exports.procesarSolicitud = (req, res) => {
             fechaSolicitud
         };
 
-        Credito.crear(nuevosDatos, (error, results) => {
-            if (error) {
-                console.error('❌ Error al guardar crédito:', error);
-                if (esJSON(req)) return res.status(500).json({ ok: false, mensaje: 'Error al procesar solicitud' });
-                return res.send('<h2>Error al procesar la solicitud</h2>');
-            }
+       Credito.crear(nuevosDatos, (error, results) => {
+    if (error) {
+        console.error('❌ Error al guardar crédito:', error);
+        if (esJSON(req)) return res.status(500).json({ ok: false, mensaje: 'Error al procesar solicitud' });
+        return res.send('<h2>Error al procesar la solicitud</h2>');
+    }
 
-            const idCredito = results.insertId;
-            if (esJSON(req)) {
-                return res.status(201).json({
-                    ok: true,
-                    mensaje: 'Solicitud de crédito registrada correctamente',
-                    credito: { idCredito, Cedula: Number(Cedula), estado: 'Pendiente', montoSolicitado: Number(montoSolicitado) }
-                });
-            }
+    const idCredito = results.insertId;
 
-            res.send(`
-                <div style="text-align: center; font-family: Arial; padding-top: 50px;">
-                    <h1 style="color: #2ecc71;">¡Solicitud Radicada con Éxito! 🎉</h1>
-                    <p>Estimado/a <strong>${Nombre}</strong>, tu radicado es: <strong>${idCredito}</strong></p>
-                    <a href="/Pagina_Principal.html" style="background: #3498db; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Finalizar</a>
-                </div>
-            `);
+    // Si la solicitud viene mediante AJAX/fetch (JSON)
+    if (esJSON(req)) {
+        return res.status(201).json({
+            ok: true,
+            mensaje: 'Solicitud de crédito registrada correctamente',
+            redirect: `/Realizar_Pago.html?id=${idCredito}`,
+            credito: { 
+                idCredito, 
+                Cedula: Number(Cedula), 
+                estado: 'Pendiente', 
+                montoSolicitado: Number(montoSolicitado) 
+            }
         });
+    }
+
+    // Si la solicitud viene mediante un formulario HTML tradicional 
+    res.send(`
+        <div style="text-align: center; font-family: Arial, sans-serif; padding-top: 50px;">
+            <h1 style="color: #2ecc71;">¡Solicitud Radicada con Éxito! 🎉</h1>
+            <p>Estimado/a <strong>${Nombre}</strong>, tu radicado es el N° <strong>${idCredito}</strong></p>
+            <a href="/Realizar_Pago.html?id=${idCredito}" style="background: #3498db; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; margin-top: 15px;">Ver Detalle de la Solicitud</a>
+        </div>
+    `);
     });
+});
 };
 
 // 2. READ: Listar Créditos
