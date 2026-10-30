@@ -9,13 +9,21 @@
 <body>
 
     <!-- Encabezado con Logo Oficial Brocash -->
-    <header class="header">
-        <div class="encabezado">
-            <img src="Logos/Logo.png" class="logo" alt="Brocash Logo">
-            <h1>Pasarela de Pagos Brocash</h1>
+   <header class="header">
+    <div class="encabezado" style="display: flex; justify: space-between; align-items: center; padding: 10px 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="Logos/Logo.png" class="logo" style="width: 40px;">
+            <h1 style="margin: 0;">Brocash</h1>
         </div>
-    </header>
-
+        
+        <!-- Botones de navegación -->
+        <nav class="nav-links" style="display: flex; gap: 15px;">
+            <a href="Pagina_Principal.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Inicio</a>
+            <a href="Solicitud_de_credito.html" style="text-decoration: none; font-weight: bold; color: #2c3e50;">Solicitar Crédito</a>
+            <button onclick="cerrarSesion()" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Cerrar Sesión</button>
+        </nav>
+    </div>
+</header>
     <div class="container">
         <div class="form-card card-pago">
             <h2>Abonar a mi Crédito</h2>
@@ -144,6 +152,10 @@
                 });
             }
         }
+        function cerrarSesion() {
+    sessionStorage.clear();
+    window.location.href = "Pagina_Principal.html";
+}
     </script>
 </body>
 </html>
